@@ -61,7 +61,33 @@ target_surfaces: []
 
 ## 3. Context and scope
 
-<!-- Business context, trust boundary, external systems, and C4 Context diagram. -->
+The Markdown-HTML web application gives a Visitor one public, no-login workflow for converting untrusted Markdown into synchronized, sanitized preview and copyable HTML. Conversion and retention remain in the browser; the system has no backend, identity provider, document API, database, or cross-device data boundary. All Markdown is untrusted at entry, while any future telemetry boundary accepts outcome metadata only.
+
+<!-- brownfield: the target foundation has been materialized as a minimal Next.js scaffold; converter domain, browser adapters, and product UI are not implemented yet. -->
+
+**External systems (in / out):**
+
+| Actor or system | Type | Interaction |
+|---|---|---|
+| Visitor | Person | Enters Markdown, verifies preview and HTML, selects an output mode, copies output, and clears retained content |
+| Browser profile storage | Browser capability | Retains only the latest Markdown when available; may deny or fail writes |
+| Privacy-approved telemetry service | External system, optional | Receives only an approved subset of outcome metadata after provider privacy review |
+
+**C4 Context (L1):**
+
+```mermaid
+C4Context
+    title Markdown-to-HTML — System Context
+
+    Person(visitor, "Visitor", "Uses the public converter without identification")
+    System(app, "Markdown-HTML web application", "Converts untrusted Markdown into synchronized sanitized preview and copyable HTML")
+    System_Ext(browser_storage, "Browser profile storage", "Optionally retains only the latest Markdown in the current browser profile")
+    System_Ext(telemetry, "Privacy-approved telemetry service", "Optionally receives outcome-only events after privacy review")
+
+    Rel(visitor, app, "Enters Markdown, verifies output, copies HTML, and clears retained content", "Browser UI")
+    Rel(app, browser_storage, "Saves, restores, and clears the latest Markdown", "Web Storage API")
+    Rel(app, telemetry, "Sends approved outcome-only events; never document or clipboard content", "Provider adapter")
+```
 
 ## 4. Solution strategy
 
