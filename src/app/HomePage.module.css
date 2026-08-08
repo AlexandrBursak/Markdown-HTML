@@ -1,0 +1,6 @@
+.page {
+  min-height: 100dvh;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import "./globals.css";
+
 export const metadata: Metadata = {
   title: "Markdown to HTML",
   description: "Convert Markdown into safe HTML in your browser.",
