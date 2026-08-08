@@ -34,7 +34,9 @@ export function ConverterWidget() {
   }, [drafts]);
 
   useEffect(() => {
-    drafts.scheduleSave(converter.markdown);
+    drafts.scheduleSave(converter.markdown, ({ persistence }) => {
+      setTabOnly(persistence === "tab");
+    });
   }, [converter.markdown, drafts]);
 
   async function copyHtml(): Promise<void> {

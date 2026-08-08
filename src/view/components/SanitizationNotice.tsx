@@ -8,13 +8,30 @@ const labels = {
 
 export function SanitizationNotice({ diagnostics }: { diagnostics: TransformationDiagnostic[] }) {
   if (diagnostics.length === 0) return null;
+  const groupedDiagnostics = diagnostics.reduce(
+    (groups, diagnostic) => {
+      const group = groups.get(diagnostic.category) ?? [];
+      group.push(diagnostic);
+      groups.set(diagnostic.category, group);
+      return groups;
+    },
+    new Map<TransformationDiagnostic["category"], TransformationDiagnostic[]>(),
+  );
+
   return (
     <details>
       <summary>{diagnostics.length} {diagnostics.length === 1 ? "transformation" : "transformations"} made</summary>
       <ul>
-        {diagnostics.map((diagnostic, index) => (
-          <li key={`${diagnostic.category}-${diagnostic.position.start.offset ?? index}`}>
-            {labels[diagnostic.category]}: line {diagnostic.position.start.line}, column {diagnostic.position.start.column}
+        {[...groupedDiagnostics].map(([category, occurrences]) => (
+          <li key={category}>
+            <span>{labels[category]} ({occurrences.length})</span>
+            <ul>
+              {occurrences.map((diagnostic, index) => (
+                <li key={`${category}-${diagnostic.position.start.offset ?? index}`}>
+                  Line {diagnostic.position.start.line}, column {diagnostic.position.start.column}
+                </li>
+              ))}
+            </ul>
           </li>
         ))}
       </ul>

@@ -28,12 +28,29 @@ describe("ConverterWidget", () => {
   it("announces grouped sanitization details without input excerpts", () => {
     render(<ConverterWidget />);
     fireEvent.change(screen.getByRole("textbox", { name: "Markdown" }), {
-      target: { value: "<script>private()</script>" },
+      target: { value: "<script>private()</script>\n\n<img src=x>\n\n[unsafe](javascript:private())" },
     });
-    const notice = screen.getByText("1 transformation made").closest("details");
+    const notice = screen.getByText("3 transformations made").closest("details");
     expect(notice).not.toBeNull();
-    expect(within(notice!).getByText("Escaped raw HTML: line 1, column 1")).toBeInTheDocument();
+    expect(within(notice!).getByText("Escaped raw HTML (2)")).toBeInTheDocument();
+    expect(within(notice!).getByText("Removed unsafe URL (1)")).toBeInTheDocument();
+    expect(within(notice!).getByText("Line 1, column 1")).toBeInTheDocument();
+    expect(within(notice!).getByText("Line 3, column 1")).toBeInTheDocument();
     expect(notice).not.toHaveTextContent("private()");
+  });
+
+  it("keeps a persistent warning visible after profile autosave fails", async () => {
+    const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("quota", "QuotaExceededError");
+    });
+
+    render(<ConverterWidget />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Markdown" }), {
+      target: { value: "runtime only" },
+    });
+
+    expect(await screen.findByText(/retained only in the current tab/i, {}, { timeout: 1_000 })).toBeVisible();
+    setItem.mockRestore();
   });
 
   it("announces the oversize boundary without blocking editing", () => {
@@ -65,11 +82,12 @@ describe("ConverterWidget", () => {
     expect(output.selectionEnd).toBe(output.value.length);
   });
 
-  it("clears input and every retained draft copy", () => {
+  it("clears input and every retained draft copy without recreating records", async () => {
     render(<ConverterWidget />);
     fireEvent.change(screen.getByRole("textbox", { name: "Markdown" }), { target: { value: "Remove" } });
     fireEvent.click(screen.getByRole("button", { name: "Clear" }));
     expect(screen.getByRole("textbox", { name: "Markdown" })).toHaveValue("");
+    await new Promise((resolve) => setTimeout(resolve, 550));
     expect(localStorage.getItem("markdown-html:latest-draft")).toBeNull();
     expect(sessionStorage.getItem("markdown-html:tab-draft")).toBeNull();
   });
