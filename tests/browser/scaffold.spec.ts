@@ -12,5 +12,5 @@ test("boots and exposes a keyboard focus target", async ({ page }) => {
   expect(accessibilityScan.violations).toEqual([]);
 
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Skip to converter" })).toBeFocused();
 });

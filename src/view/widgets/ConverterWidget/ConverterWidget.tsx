@@ -17,12 +17,21 @@ import { useConverterState } from "./useConverterState";
 
 export function ConverterWidget() {
   const [drafts] = useState(() => createDraftStorage());
-  const [restored] = useState(() => drafts.restore());
   const [clipboard] = useState(() => createHtmlClipboard());
   const [actionMessage, setActionMessage] = useState("");
+  const [tabOnly, setTabOnly] = useState(false);
   const outputRef = useRef<HTMLTextAreaElement>(null);
-  const converter = useConverterState({ initialMarkdown: restored.markdown });
-  const tabOnly = restored.persistence === "tab";
+  const converter = useConverterState();
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      const restored = drafts.restore();
+      if (restored.markdown) converter.updateMarkdown(restored.markdown, false);
+      setTabOnly(restored.persistence === "tab");
+    });
+  // Restoration must happen after the server-compatible first client render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drafts]);
 
   useEffect(() => {
     drafts.scheduleSave(converter.markdown);
