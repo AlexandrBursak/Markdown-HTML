@@ -1,0 +1,4 @@
+interface:
+  display_name: "RexSoft Frontend"
+  short_description: "Build Next.js frontends with RexSoft conventions"
+  default_prompt: "Use $rexsoft-frontend to implement this frontend task using the project conventions."
