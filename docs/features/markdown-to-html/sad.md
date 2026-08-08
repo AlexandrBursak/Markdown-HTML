@@ -225,7 +225,41 @@ ADR files live under `docs/features/markdown-to-html/adr/NNNN-<decision-title>.m
 
 ## 10. Quality requirements
 
-<!-- Testable When/Then/How-verify scenarios using spec §6 figures verbatim. -->
+**QG-1. Safety and privacy**
+
+- **When:** Known unsafe fixtures are converted and consumed through preview or either clipboard representation.
+- **Then:** 100% of known unsafe fixtures execute no active content in preview or copied HTML.
+- **How verify:** Security regression suite across allowed and disallowed elements, attributes, URL schemes, images, raw HTML, and both clipboard representations.
+
+**QG-2. Output correctness**
+
+- **When:** Sequential editing, output-mode switching, and copying occur.
+- **Then:** 100% of successful copy operations contain the current visible sanitized HTML as both literal source and rich HTML.
+- **How verify:** Integration tests that also attempt copying during stale input revisions and output-mode changes.
+
+**QG-3a. Live responsiveness**
+
+- **When:** Documents up to 100,000 Unicode code points are converted.
+- **Then:** Live conversion latency is p95 ≤100 ms.
+- **How verify:** Automated browser performance tests across boundary sizes counted as Unicode code points.
+
+**QG-3b. Initial usability**
+
+- **When:** The application loads with cold cache on a 4-core, 4 GB mobile profile over 10 Mbps downlink and 100 ms network latency.
+- **Then:** Input is available and both output panels are initialized at p95 ≤2 s.
+- **How verify:** Synthetic browser test.
+
+**QG-3c. Draft recovery**
+
+- **When:** Input is older than 500 ms, or browser profile storage is unavailable or fails.
+- **Then:** The latest input is restored from `localStorage` in normal browsing mode; any storage write failure produces retention only in current-tab memory and a persistent warning.
+- **How verify:** Browser integration tests in normal mode across the browser support matrix, plus private-mode and forced-storage-failure cases.
+
+**QG-3d. Accessibility**
+
+- **When:** A Visitor uses the primary workflow, including copy failure, notices, output-mode switching, and Clear.
+- **Then:** All primary actions work from the keyboard; zero critical or serious violations.
+- **How verify:** Automated accessibility scan and keyboard smoke test.
 
 ## 11. Risks and technical debt
 
