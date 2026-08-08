@@ -29,6 +29,67 @@ test("reports raw HTML without executing it", async ({ page }) => {
   expect(await page.evaluate(() => (window as Window & { __unsafe?: boolean }).__unsafe)).toBeUndefined();
 });
 
+test("publishes composed input only when character composition completes", async ({ page }) => {
+  await page.goto("/");
+  const editor = page.getByRole("textbox", { name: "Markdown" });
+  const html = page.getByRole("textbox", { name: "Generated HTML" });
+
+  await editor.fill("before");
+  await expect(html).toHaveValue("<p>before</p>");
+
+  await editor.evaluate((element) => {
+    const textarea = element as HTMLTextAreaElement;
+    const setValue = Object.getOwnPropertyDescriptor(
+      HTMLTextAreaElement.prototype,
+      "value",
+    )?.set;
+    if (!setValue) throw new Error("Native textarea setter unavailable");
+
+    textarea.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
+    setValue.call(textarea, "完成");
+    textarea.dispatchEvent(new InputEvent("input", {
+      bubbles: true,
+      data: "成",
+      inputType: "insertCompositionText",
+      isComposing: true,
+    }));
+  });
+
+  await expect(html).toHaveValue("<p>before</p>");
+  await editor.dispatchEvent("compositionend", { data: "完成" });
+  await expect(editor).toHaveValue("完成");
+  await expect(page.getByRole("region", { name: "Preview" }).locator("p")).toHaveText("完成");
+  await expect(html).toHaveValue("<p>完成</p>");
+});
+
+test("selects the complete visible HTML when clipboard access is denied", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        write: async () => {
+          throw new DOMException("denied", "NotAllowedError");
+        },
+      },
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("textbox", { name: "Markdown" }).fill("Copy me");
+  await page.getByRole("button", { name: "Copy HTML" }).click();
+
+  await expect(page.getByText("Copy failed. The HTML is selected for manual copying.")).toBeVisible();
+  const output = page.getByRole("textbox", { name: "Generated HTML" });
+  await expect(output).toBeFocused();
+  expect(await output.evaluate((element) => {
+    const textarea = element as HTMLTextAreaElement;
+    return {
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+      length: textarea.value.length,
+    };
+  })).toEqual({ start: 0, end: 14, length: 14 });
+});
+
 test("renders supported CommonMark and GFM families in both output surfaces", async ({ page }) => {
   await page.goto("/");
   const markdown = [
