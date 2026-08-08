@@ -214,7 +214,14 @@ The downstream `sequences` stage expands this seed so every acceptance criterion
 
 ## 9. Architecture decisions
 
-<!-- Reverse index of all feature ADRs. -->
+| # | Title | Status | Section |
+|---|---|---|---|
+| 0001 | Keep the route shell server-rendered around one client converter | Accepted | §4 |
+| 0002 | Derive every output from one sanitized conversion result | Accepted | §4 |
+| 0003 | Gate copying with revision-matched conversion results | Accepted | §4 |
+| 0004 | Isolate browser persistence and telemetry behind typed adapters | Accepted | §4 |
+
+ADR files live under `docs/features/markdown-to-html/adr/NNNN-<decision-title>.md`.
 
 ## 10. Quality requirements
 
