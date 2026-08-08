@@ -150,7 +150,48 @@ C4Container
 
 ## 6. Runtime view
 
-<!-- At least one critical semantic sequence flow using §5 participants. -->
+**Critical flow 1: Convert, retain, select output mode, and copy**
+
+```mermaid
+sequenceDiagram
+    actor Visitor
+    participant Widget as ConverterWidget
+    participant Pipeline as ConversionPipeline
+    participant Storage as DraftStorage
+    participant Clipboard as ClipboardAdapter
+
+    Visitor->>Widget: Completes an input or composition event
+    Widget->>Widget: Advances the input revision and marks output stale
+    par Convert current input
+        Widget->>Pipeline: Converts Markdown for the current revision and mode
+        Pipeline-->>Widget: Returns sanitized result and transformation diagnostics
+        Widget->>Widget: Accepts only a revision-matched result and updates both outputs
+    and Retain latest draft
+        Widget->>Storage: Schedules the latest completed input for retention
+        alt Browser profile storage succeeds
+            Storage-->>Widget: Confirms persistent retention
+        else Browser profile storage is unavailable or fails
+            Storage-->>Widget: Retains current-tab memory and reports persistent warning
+        end
+    end
+
+    Visitor->>Widget: Selects fragment or full-document mode
+    Widget->>Pipeline: Serializes the sanitized result for the selected mode
+    Pipeline-->>Widget: Returns mode-matched displayed HTML
+    Widget-->>Visitor: Enables copy when revision and mode are current
+
+    Visitor->>Widget: Chooses copy
+    Widget->>Clipboard: Writes literal HTML and rich HTML
+    alt Browser confirms clipboard success
+        Clipboard-->>Widget: Confirms success
+        Widget-->>Visitor: Shows copy confirmation
+    else Clipboard access is denied or fails
+        Clipboard-->>Widget: Reports failure
+        Widget-->>Visitor: Shows failure and focuses selectable HTML panel
+    end
+```
+
+The downstream `sequences` stage expands this seed so every acceptance criterion maps to a flow, branch, or explicit N/A.
 
 ## 7. Deployment view
 
