@@ -150,6 +150,37 @@ C4Container
 
 ## 6. Runtime view
 
+### Convert and sanitize current input
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: the converter is open and accepts browser input
+    U->>UI: Complete an input or composition event
+    UI->>UI: Advance the input revision and mark output stale
+    UI->>S: Convert the current Markdown revision
+    S->>S: Parse all supported GFM constructs
+    S->>S: Escape raw HTML and sanitize unsafe behavior
+    alt Unsafe or raw HTML content is transformed
+        S-->>UI: Return counts, categories, and positions without input excerpts
+        UI-->>U: Show synchronized safe output and expandable transformation details
+    else No content requires transformation
+        S-->>UI: Return the normalized sanitized result with no transformations
+        UI-->>U: Show synchronized preview and displayed HTML
+    end
+    UI->>UI: Accept only the current revision
+    alt Input is within the guaranteed size range
+        UI-->>U: Make the current output eligible for copying
+    else Input exceeds 100,000 Unicode code points
+        UI-->>U: Show the size warning and keep copy unavailable while stale
+    end
+    Note over U,S: Postcondition: visible outputs share one sanitized structure for the current revision
+```
+
 **Critical flow 1: Convert, retain, select output mode, and copy**
 
 ```mermaid
@@ -192,6 +223,143 @@ sequenceDiagram
 ```
 
 The downstream `sequences` stage expands this seed so every acceptance criterion maps to a flow, branch, or explicit N/A.
+
+### Select output mode and copy the current result
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+    participant X as <external-system>
+
+    Note over U,S: Precondition: a current sanitized conversion result exists
+    U->>UI: Choose fragment or full-document mode
+    UI->>UI: Mark copy unavailable until the selected mode is current
+    UI->>S: Serialize the sanitized result for the selected mode
+    alt Fragment mode is selected
+        S-->>UI: Return only the converted content
+    else Full-document mode is selected
+        S-->>UI: Return the strict minimal document wrapper and converted content
+    end
+    UI-->>U: Show the mode-matched HTML
+    alt Input revision and output mode are current
+        UI-->>U: Enable copy
+        U->>UI: Choose Copy
+        UI->>X: Write literal HTML and rich HTML together
+        alt Clipboard write succeeds
+            X-->>UI: Confirm the browser write
+            UI-->>U: Show copy confirmation
+        else Clipboard access is denied or fails
+            X-->>UI: Report the clipboard failure
+            UI-->>U: Show failure and focus the selectable HTML panel
+        end
+    else Input revision or output mode is stale
+        UI-->>U: Keep copy unavailable until displayed output is current
+    end
+    Note over U,S: Postcondition: any successful copy matches the current visible sanitized HTML and selected mode
+```
+
+### Restore and retain the latest draft
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+    participant D as <data-store>
+
+    Note over U,D: Precondition: browser profile storage may contain one previously completed Markdown draft
+    U->>UI: Open the converter
+    UI->>S: Request the latest draft for the current browser profile
+    S->>D: Read the retained Markdown
+    alt A retained draft exists in this browser profile
+        D-->>S: Return the latest Markdown
+        S-->>UI: Restore the draft
+        UI->>S: Convert the restored Markdown automatically
+        S-->>UI: Return the current sanitized result
+        UI-->>U: Show the restored input and synchronized outputs
+    else No draft exists in this browser profile
+        D-->>S: Return no retained draft
+        S-->>UI: Start with empty input
+        UI-->>U: Show the initialized empty converter
+    end
+    U->>UI: Complete a later input event
+    UI->>S: Retain the latest completed Markdown within the autosave window
+    S->>D: Save the latest Markdown
+    Note over S,D: persists latest draft for the current browser profile
+    alt Browser profile storage accepts the write
+        D-->>S: Confirm persistent retention
+        S-->>UI: Report the draft as retained
+    else Browser profile storage is unavailable or fails
+        D-->>S: Report the storage failure
+        S->>S: Retain the latest Markdown in current-tab memory
+        S-->>UI: Report session-only retention
+        UI-->>U: Show a persistent storage warning
+    end
+    Note over U,D: Postcondition: only the current profile or current tab can restore its latest retained draft
+```
+
+### Clear retained content
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+    participant D as <data-store>
+
+    Note over U,D: Precondition: the current browser profile or tab retains Markdown
+    U->>UI: Choose Clear
+    UI->>UI: Clear the visible input and invalidate the current output
+    UI->>S: Remove every retained copy for this converter
+    S->>D: Delete the browser profile draft
+    Note over S,D: persists removal of the latest draft
+    S->>S: Delete the current-tab memory copy
+    alt Both retained copies are absent
+        D-->>S: Confirm no browser profile draft remains
+        S-->>UI: Confirm all retained content is cleared
+        UI-->>U: Show the initialized empty converter
+    else Browser profile deletion fails
+        D-->>S: Report the deletion failure
+        S-->>UI: Report that persistent content may remain
+        UI-->>U: Show a persistent clear-failure warning
+    end
+    Note over U,D: Postcondition: after success, reopening cannot restore the cleared Markdown
+```
+
+### Runtime coverage
+
+| User story | Runtime flow coverage |
+|---|---|
+| US-01 — Convert while typing | Convert and sanitize current input |
+| US-02 — Preview extended Markdown | Convert and sanitize current input |
+| US-03 — Inspect generated HTML | Convert and sanitize current input |
+| US-04 — Copy generated HTML | Select output mode and copy the current result |
+| US-05 — Understand removed content | Convert and sanitize current input |
+| US-06 — Restore my draft | Restore and retain the latest draft |
+| US-07 — Clear saved content | Clear retained content |
+| US-08 — Choose output form | Select output mode and copy the current result |
+
+| Acceptance criterion | Runtime flow or branch |
+|---|---|
+| AC-01 | Convert flow — completed input advances the revision and updates both outputs |
+| AC-02 | Convert flow — service parses all supported GFM constructs |
+| AC-03 | Convert flow — postcondition requires one sanitized structure for synchronized outputs |
+| AC-04 | Copy flow — current result is written as literal and rich HTML, then confirmed |
+| AC-04b | Copy flow — clipboard-failure branch focuses the selectable HTML panel |
+| AC-05 | Convert flow — transformation branch returns content-free counts, categories, and positions |
+| AC-05b | Convert flow — raw HTML is escaped and included in transformation diagnostics |
+| AC-06 | Restore flow — current-profile draft is restored and converted automatically |
+| AC-07 | Restore flow — no draft in the current profile initializes an empty converter; the postcondition limits restoration to the current profile or tab |
+| AC-08 | Clear flow — both storage copies are deleted and successful reopening cannot restore them |
+| AC-09 | Copy flow — mode branches serialize a fragment or strict minimal document and gate copy until current |
+| AC-10 | Convert flow — oversized-input branch warns and keeps copy unavailable while output is stale |
+
+**Runtime-view notes.** The pre-existing critical-flow seed remains unchanged. It uses concrete module participants established by §5; all sequence blocks added by the `sequences` stage use only the generic UI-driven vocabulary. No flow introduces a database entity, column, index, or migration: the sole persisted value remains the browser-local latest draft defined by the existing storage adapter.
 
 ## 7. Deployment view
 
