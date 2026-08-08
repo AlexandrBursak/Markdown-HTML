@@ -32,12 +32,15 @@ function makeClipboardItem(html: string): ClipboardItem {
 }
 
 export function createHtmlClipboard(
-  writer: ClipboardWriter = navigator.clipboard,
+  writer?: ClipboardWriter,
 ) {
+  const activeWriter = writer ?? (typeof navigator === "undefined"
+    ? { write: async () => { throw new Error("Clipboard unavailable"); } }
+    : navigator.clipboard);
   return {
     async copy(html: string): Promise<ClipboardResult> {
       try {
-        await writer.write([makeClipboardItem(html)]);
+        await activeWriter.write([makeClipboardItem(html)]);
         return { ok: true };
       } catch (error) {
         return {

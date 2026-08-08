@@ -19,9 +19,14 @@ export interface RestoredDraft {
 }
 
 export function createDraftStorage(options: DraftStorageOptions = {}) {
-  const profileStorage = options.profileStorage ?? window.localStorage;
-  const tabStorage = options.tabStorage ?? window.sessionStorage;
   let memoryDraft = "";
+  const memoryStorage: StorageLike = {
+    getItem: () => memoryDraft || null,
+    setItem: (_key, value) => { memoryDraft = value; },
+    removeItem: () => { memoryDraft = ""; },
+  };
+  const profileStorage = options.profileStorage ?? (typeof window === "undefined" ? memoryStorage : window.localStorage);
+  const tabStorage = options.tabStorage ?? (typeof window === "undefined" ? memoryStorage : window.sessionStorage);
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
   function write(markdown: string): void {
