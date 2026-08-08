@@ -281,4 +281,15 @@ ADR files live under `docs/features/markdown-to-html/adr/NNNN-<decision-title>.m
 
 ## 12. Glossary
 
-<!-- Canonical domain and technical terms; feature CONTEXT wins on conflicts. -->
+| Term | Meaning |
+|---|---|
+| Visitor | A person who uses the public converter without identification; not a registered user and has no server-side profile |
+| GFM | The full official GitHub Flavored Markdown syntax supported by the converter |
+| Sanitized conversion result | The normalized, typed structure remaining after security policy is applied; every visible and copied output derives from it |
+| Transformation diagnostic | A content-free record of a removal, change, or escaped raw-HTML occurrence, including category and source position but no input excerpt |
+| Fragment mode | The default output containing only converted content |
+| Full-document mode | The same converted content inside the strictly minimal wrapper defined by AC-09 |
+| Current result | A result whose input revision and output mode both match the Visitor's latest state |
+| Browser profile storage | `localStorage` scoped to the current browser profile; not a server datastore |
+| Current-tab memory | A non-persistent fallback retained only while the current tab remains alive |
+| Clear | The action that removes editor input and every application-controlled copy from browser profile storage and current-tab memory |
