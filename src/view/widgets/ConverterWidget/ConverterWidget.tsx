@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { createHtmlClipboard } from "@/shared/browser/clipboard";
 import { createDraftStorage } from "@/shared/browser/draftStorage";
+import { ConverterActions } from "@/view/components/ConverterActions";
 import { HtmlOutputPanel } from "@/view/components/HtmlOutputPanel";
 import { MarkdownEditor } from "@/view/components/MarkdownEditor";
 import { OutputModeControl } from "@/view/components/OutputModeControl";
@@ -16,6 +18,9 @@ import { useConverterState } from "./useConverterState";
 export function ConverterWidget() {
   const [drafts] = useState(() => createDraftStorage());
   const [restored] = useState(() => drafts.restore());
+  const [clipboard] = useState(() => createHtmlClipboard());
+  const [actionMessage, setActionMessage] = useState("");
+  const outputRef = useRef<HTMLTextAreaElement>(null);
   const converter = useConverterState({ initialMarkdown: restored.markdown });
   const tabOnly = restored.persistence === "tab";
 
@@ -23,18 +28,35 @@ export function ConverterWidget() {
     drafts.scheduleSave(converter.markdown);
   }, [converter.markdown, drafts]);
 
+  async function copyHtml(): Promise<void> {
+    const outcome = await clipboard.copy(converter.result.html);
+    if (outcome.ok) {
+      setActionMessage("HTML copied");
+      return;
+    }
+    setActionMessage("Copy failed. The HTML is selected for manual copying.");
+    outputRef.current?.focus();
+    outputRef.current?.select();
+  }
+
+  function clearDraft(): void {
+    const outcome = drafts.clear();
+    converter.clear();
+    setActionMessage(outcome.ok ? "Draft cleared" : "Draft cleared here, but browser storage removal failed");
+  }
+
   return (
     <section className={styles.workspace} aria-label="Markdown converter">
       <div className={styles.toolbar}>
         <OutputModeControl mode={converter.mode} onChange={converter.setMode} />
-        <span aria-live="polite">{converter.canCopy ? "Output is current" : "Enter Markdown to convert"}</span>
+        <ConverterActions canCopy={converter.canCopy} onCopy={copyHtml} onClear={clearDraft} message={actionMessage} />
       </div>
       <StatusNotice isOversize={converter.isOversize} tabOnly={tabOnly} />
       <SanitizationNotice diagnostics={converter.result.diagnostics} />
       <div className={styles.grid}>
         <MarkdownEditor value={converter.markdown} onChange={converter.updateMarkdown} />
         <PreviewPanel html={converter.result.fragmentHtml} />
-        <HtmlOutputPanel html={converter.result.html} />
+        <HtmlOutputPanel ref={outputRef} html={converter.result.html} />
       </div>
     </section>
   );

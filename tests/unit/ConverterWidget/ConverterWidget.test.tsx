@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ConverterWidget } from "@/view/widgets/ConverterWidget/ConverterWidget";
 
@@ -42,5 +42,35 @@ describe("ConverterWidget", () => {
     fireEvent.change(editor, { target: { value: "a".repeat(100_001) } });
     expect(editor).toHaveValue("a".repeat(100_001));
     expect(screen.getByRole("status")).toHaveTextContent("100,000 Unicode code points");
+  });
+
+  it("confirms copy only after the dual-MIME write succeeds", async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { write } });
+    render(<ConverterWidget />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Markdown" }), { target: { value: "Copy" } });
+    fireEvent.click(screen.getByRole("button", { name: "Copy HTML" }));
+    expect(await screen.findByText("HTML copied")).toBeInTheDocument();
+    expect(write).toHaveBeenCalledTimes(1);
+  });
+
+  it("focuses and selects the existing output when copy fails", async () => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { write: vi.fn().mockRejectedValue(new Error("failed")) } });
+    render(<ConverterWidget />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Markdown" }), { target: { value: "Copy" } });
+    fireEvent.click(screen.getByRole("button", { name: "Copy HTML" }));
+    const output = screen.getByRole("textbox", { name: "Generated HTML" }) as HTMLTextAreaElement;
+    expect(await screen.findByText("Copy failed. The HTML is selected for manual copying.")).toBeInTheDocument();
+    expect(output).toHaveFocus();
+    expect(output.selectionEnd).toBe(output.value.length);
+  });
+
+  it("clears input and every retained draft copy", () => {
+    render(<ConverterWidget />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Markdown" }), { target: { value: "Remove" } });
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    expect(screen.getByRole("textbox", { name: "Markdown" })).toHaveValue("");
+    expect(localStorage.getItem("markdown-html:latest-draft")).toBeNull();
+    expect(sessionStorage.getItem("markdown-html:tab-draft")).toBeNull();
   });
 });
