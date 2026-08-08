@@ -263,7 +263,21 @@ ADR files live under `docs/features/markdown-to-html/adr/NNNN-<decision-title>.m
 
 ## 11. Risks and technical debt
 
-<!-- Risks, accepted debt, and every deferred decision with mandatory owner and due. -->
+| Risk / debt | Severity | Mitigation | Owner |
+|---|---|---|---|
+| A GFM parser may not preserve the source positions needed for every sanitization transformation | High | Evaluate representative fixtures before adoption; reject dependencies that cannot support full GFM plus positional diagnostics | Tech Lead |
+| Browser clipboard implementations may differ for dual `text/plain` and `text/html` writes | Medium | Test the declared browser matrix and retain the selectable-panel fallback | Tech Lead |
+| Main-thread conversion may miss responsiveness targets near 100,000 code points | Medium | Run boundary tests early; preserve the revision protocol when moving conversion to a Web Worker | Tech Lead |
+| Live design source and concrete product tokens are unresolved | Medium | Preserve `<!-- FILL -->` markers and avoid fabricated values until an authoritative source is approved | Product Owner |
+| Telemetry provider and approved event subset are unresolved | Open question | Resolve before production launch; launch remains blocked until privacy review passes | Product Owner + Tech Lead |
+| Local version history rules are unresolved | Open question | Resolve before specifying version history; MVP retains only the latest draft | Product Owner |
+
+**Accepted debt (acceptable in v1, revisit at the stated trigger):**
+
+- Conversion begins on the main thread; boundary performance evidence determines whether to introduce a Web Worker.
+- Only the latest draft is retained; there is no local version history.
+- Telemetry remains disabled until its provider and event subset are approved.
+- The initial UI uses only established tokens and cannot claim fidelity to a missing design source.
 
 ## 12. Glossary
 
