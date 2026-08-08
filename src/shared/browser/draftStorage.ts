@@ -62,6 +62,9 @@ export function createDraftStorage(options: DraftStorageOptions = {}) {
       }, AUTOSAVE_DELAY_MS);
     },
     restore(): RestoredDraft {
+      if (persistence === "tab") {
+        return { markdown: memoryDraft, persistence };
+      }
       if (profileStorage) {
         try {
           const markdown = profileStorage.getItem(PROFILE_KEY);

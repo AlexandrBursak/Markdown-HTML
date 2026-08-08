@@ -29,6 +29,23 @@ describe("draft storage", () => {
     expect(persistence).toEqual(["tab"]);
   });
 
+  it("restores the latest tab-memory draft after replacing an older profile draft fails", () => {
+    const profileStorage = {
+      getItem: () => "older profile draft",
+      setItem: () => { throw new Error("denied"); },
+      removeItem: () => { throw new Error("denied"); },
+    };
+    const drafts = createDraftStorage({ profileStorage });
+
+    drafts.scheduleSave("latest tab draft");
+    vi.advanceTimersByTime(500);
+
+    expect(drafts.restore()).toEqual({
+      markdown: "latest tab draft",
+      persistence: "tab",
+    });
+  });
+
   it("guards browser storage capability access and retains only runtime memory", () => {
     const descriptor = Object.getOwnPropertyDescriptor(window, "localStorage");
     Object.defineProperty(window, "localStorage", {
