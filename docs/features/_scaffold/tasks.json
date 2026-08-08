@@ -1,0 +1,59 @@
+{
+  "slug": "_scaffold",
+  "tasks": [
+    {
+      "id": "S1",
+      "title": "Create the Next.js TypeScript project and RexSoft layer structure",
+      "layer": "scaffold",
+      "deps": [],
+      "acs": [],
+      "dod": "The project installs with pnpm, TypeScript strict mode is enabled, the app builds, and the web entry point boots.",
+      "files_hint": ["package.json", "src/app/", "src/entities/", "src/shared/", "src/view/"]
+    },
+    {
+      "id": "S2",
+      "title": "Wire unit, component, browser, and accessibility test harnesses",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "The empty unit/component suites run green and a browser smoke test proves that the application boots and accepts keyboard focus.",
+      "files_hint": ["vitest.config.ts", "tests/", "playwright.config.ts"]
+    },
+    {
+      "id": "S3",
+      "title": "Establish CSS Modules and design-token foundations",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "Global CSS custom properties and one CSS Module prove the styling pipeline; unknown visual tokens remain explicitly unresolved rather than fabricated.",
+      "files_hint": ["src/app/globals.css", "src/shared/styles/"]
+    },
+    {
+      "id": "S4",
+      "title": "Add Docker Compose development and production packaging",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "The single web service builds and boots as a non-root container with a healthcheck and logging limits; no database or migration tool is introduced.",
+      "files_hint": ["compose.yml", "docker/Dockerfile", "docker/entrypoint.sh", ".env.example"]
+    },
+    {
+      "id": "S5",
+      "title": "Install RexSoft frontend guidance and repository rules",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "The rexsoft-frontend skill is installed with dereferenced references, AGENTS.md records real project commands and constraints, and no unresolved product-specific value is guessed.",
+      "files_hint": [".agents/skills/rexsoft-frontend/", "AGENTS.md", "README.md"]
+    },
+    {
+      "id": "S6",
+      "title": "Add the CI quality gate",
+      "layer": "scaffold",
+      "deps": ["S2", "S4"],
+      "acs": [],
+      "dod": "CI installs dependencies and passes typecheck, lint, test, browser smoke, and production build using the same documented commands as local development.",
+      "files_hint": [".github/workflows/ci.yml", "README.md"]
+    }
+  ]
+}
