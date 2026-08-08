@@ -6,7 +6,7 @@
 | # | Task | Layer | Owner | Estimate | Blocked by | Status |
 |---|---|---|---|---|---|---|
 | T1 | Establish the typed GFM parsing contract | domain | Frontend Lead | 6h | — | done |
-| T2 | Implement canonical sanitization and deterministic serializers | domain | Frontend Lead | 8h | T1 | todo |
+| T2 | Implement canonical sanitization and deterministic serializers | domain | Frontend Lead | 8h | T1 | done |
 | T3 | Add resilient latest-draft browser storage | infra | Frontend Lead | 5h | — | todo |
 | T4 | Add a typed dual-MIME clipboard adapter | infra | Frontend Lead | 4h | — | todo |
 | T5 | Define disabled-by-default outcome telemetry | infra | Frontend Lead | 3h | — | todo |

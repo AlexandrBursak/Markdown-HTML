@@ -18,6 +18,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "hast-util-to-html": "latest",
+    "mdast-util-to-hast": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
