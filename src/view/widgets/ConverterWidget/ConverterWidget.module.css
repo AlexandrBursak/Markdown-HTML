@@ -1,0 +1,36 @@
+.workspace {
+  display: grid;
+  gap: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.grid > * {
+  min-width: 0;
+}
+
+.grid textarea {
+  width: 100%;
+  resize: vertical;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font: inherit;
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
