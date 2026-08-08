@@ -1,0 +1,9 @@
+.git
+.github
+.next
+.pnpm-store
+.worktrees
+coverage
+node_modules
+playwright-report
+test-results
