@@ -1,0 +1,38 @@
+name: Performance
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  converter-profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run the full converter performance profile
+        run: pnpm test:performance

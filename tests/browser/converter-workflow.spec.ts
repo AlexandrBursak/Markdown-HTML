@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { officialGfmConstructFixtures } from "./fixtures/gfm";
+
 test("converts GFM, switches modes, restores, and clears", async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
@@ -124,6 +126,26 @@ test("renders supported CommonMark and GFM families in both output surfaces", as
   await expect(html).toHaveValue(/<blockquote>/);
   await expect(html).toHaveValue(/<table>/);
   await expect(html).toHaveValue(/<code class="language-ts">/);
+});
+
+test("matches every official GFM construct family in preview and generated HTML", async ({ page }) => {
+  await page.goto("/");
+  const editor = page.getByRole("textbox", { name: "Markdown" });
+  const html = page.getByRole("textbox", { name: "Generated HTML" });
+  const previewBody = page.getByRole("region", { name: "Preview" }).locator(":scope > div");
+
+  for (const fixture of officialGfmConstructFixtures) {
+    await test.step(fixture.section, async () => {
+      await editor.fill(fixture.markdown);
+      await expect(html).toHaveValue(fixture.html);
+      const normalizedExpected = await page.evaluate((expected) => {
+        const template = document.createElement("template");
+        template.innerHTML = expected;
+        return template.innerHTML;
+      }, fixture.html);
+      await expect.poll(() => previewBody.evaluate((element) => element.innerHTML)).toBe(normalizedExpected);
+    });
+  }
 });
 
 test("keeps a retained draft isolated to its browser profile", async ({ browser, page }) => {

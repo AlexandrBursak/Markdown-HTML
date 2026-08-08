@@ -31,6 +31,7 @@ pnpm build
 The local browser smoke uses the installed Chrome channel and starts the application on `127.0.0.1:4173`. CI additionally runs Firefox, WebKit, Edge, Android Chrome emulation, and iOS Safari emulation.
 
 GitHub Actions runs this same gate for pull requests and pushes to `main`.
+A separate weekly and manually triggered workflow runs the 10-minute conversion profile and 30 cold-load samples with CPU and network throttling.
 
 ## Docker development
 

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { parseMarkdown } from "@/entities/conversion/parse";
+import { convertMarkdown } from "@/entities/conversion/convert";
+import { officialGfmConstructFixtures } from "../../browser/fixtures/gfm";
 
 describe("parseMarkdown", () => {
   it("parses representative GFM constructs with source positions", () => {
@@ -66,4 +68,11 @@ describe("parseMarkdown", () => {
       position: { start: { line: 3, column: 1 } },
     });
   });
+
+  it.each(officialGfmConstructFixtures)(
+    "matches the official $section construct semantics on sanitized output",
+    ({ markdown, html }) => {
+      expect(convertMarkdown(markdown, 1, "fragment").html).toBe(html);
+    },
+  );
 });
