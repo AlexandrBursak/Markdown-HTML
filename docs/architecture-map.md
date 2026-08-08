@@ -2,7 +2,7 @@
 status: current
 mode: greenfield-bootstrap
 updated_at: "2026-08-08"
-reflects_commit: "UNBORN"
+reflects_commit: "fdb2a44"
 language: "TypeScript (strict) on Node.js LTS"
 build_cmd: "pnpm build"
 test_cmd: "pnpm test"
@@ -13,7 +13,7 @@ frontend: "Next.js App Router + React + CSS Modules"
 
 # Architecture map — Markdown-HTML
 
-> The established greenfield foundation that the scaffold and all feature work must materialize. The repository had no commit at survey time, so `reflects_commit: UNBORN` is the explicit initial-state stamp.
+> The established greenfield foundation that the scaffold and all feature work must materialize. It reflects the initial foundation checkpoint recorded in `reflects_commit`.
 
 ## Stack
 
