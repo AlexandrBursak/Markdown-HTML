@@ -15,7 +15,24 @@ target_surfaces: []
 
 ## 1. Introduction and goals
 
-<!-- Intent, top-three quality goals, stakeholders, and critic decision overrides. -->
+**Intent.** Build a public, browser-only web converter where a Visitor enters Markdown and receives a synchronized, sanitized preview and copyable HTML without an account or server-side document storage.
+
+**Top-3 quality goals:**
+
+1. **Safety and privacy.** Active content must never execute; document content must remain in the Visitor's browser and outside telemetry.
+2. **Output correctness.** Preview, displayed HTML, and clipboard output must derive from the same normalized sanitized structure.
+3. **Responsive, recoverable interaction.** Conversion must meet the specified latency target, preserve completed input locally, expose failures, and remain keyboard-accessible.
+
+**Stakeholders.**
+
+| Role | Interest | Sign-off owner? |
+|---|---|---|
+| Visitor | Converts Markdown, verifies the result, copies HTML, and controls locally retained content | No |
+| Product Owner | Product intent, scope, and acceptance | Yes — product scope |
+| Tech Lead | Architecture and implementation boundaries | Yes — architecture |
+| Security Lead | Rendering, sanitization, clipboard, persistence, and telemetry controls | Yes — security |
+
+<!-- Decision overrides: none. -->
 
 ## 2. Constraints
 
