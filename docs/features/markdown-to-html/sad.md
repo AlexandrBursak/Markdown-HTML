@@ -1,5 +1,5 @@
 ---
-status: Draft
+status: Accepted
 owner: "Architect / Tech Lead"
 reviewers: ["Tech Lead", "Security Lead"]
 updated_at: "2026-08-08"
