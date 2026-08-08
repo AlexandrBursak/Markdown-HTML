@@ -199,7 +199,18 @@ The downstream `sequences` stage expands this seed so every acceptance criterion
 
 ## 8. Crosscutting concepts
 
-<!-- Cross-module security, errors, persistence, telemetry, accessibility, and related conventions. -->
+| Concept | Convention | Where defined |
+|---|---|---|
+| Input trust | Treat every Markdown character as untrusted; raw HTML becomes text before it can affect structure | Spec §6.1; ADR-0002 |
+| Output security | Allow structure only from supported GFM; centralize URL/image policy and content-free diagnostics in the conversion domain | Spec AC-05/AC-05b; ADR-0002 |
+| Output consistency | Preview, displayed HTML, and clipboard payloads consume one revision- and mode-identified sanitized result | Spec AC-03/AC-09; ADR-0002/ADR-0003 |
+| Error handling | Expected browser failures return typed results and visible recoverable states; unexpected widget/route failures use React/Next error boundaries | Architecture map; ADR-0004 |
+| Persistence | Save completed input within 500 ms; fall back to current-tab memory with a persistent warning; Clear removes both copies | Spec AC-06–AC-08; ADR-0004 |
+| Clipboard | Write `text/plain` and `text/html` together; confirm only after browser success; focus the selectable HTML panel on failure | Spec AC-04/AC-04b; ADR-0003 |
+| Telemetry and logging | Allowlisted outcome fields only; never document, output, clipboard, URL, excerpt, or persistent identifier content | Spec §6.1; ADR-0004 |
+| Accessibility | Keyboard operation and focus management are component contracts, including failure paths and notices | Spec §6 Accessibility; here |
+| Internationalization | N/A for MVP because no locale or translation requirement is approved; accessible copy remains centralized for later extraction | Here |
+| Authentication and IDs | N/A: no account or authorization boundary; only a random tab-scoped telemetry session identifier may exist after approval | Spec §6.1; architecture map |
 
 ## 9. Architecture decisions
 
