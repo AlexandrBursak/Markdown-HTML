@@ -99,7 +99,54 @@ C4Context
 
 ## 5. Building block view
 
-<!-- Internal decomposition and one C4 container per declared target surface. -->
+The feature uses the accepted layered frontend architecture. One web container owns delivery and browser execution, while pure conversion contracts, browser adapters, external telemetry integration, and product UI have distinct module ownership. Dependencies flow `app → view/data/entities/shared`; lower layers never import upward.
+
+**Internal decomposition:**
+
+```text
+src/
+├── app/
+│   └── page.tsx                         thin server-rendered route composition
+├── entities/conversion/
+│   ├── types.ts                         revisions, modes, sanitized nodes, diagnostics
+│   ├── parse.ts                         GFM parsing with raw HTML treated as text
+│   ├── sanitize.ts                      URL/structure policy and transformations
+│   ├── serialize.ts                     fragment and minimal-document serializers
+│   └── convert.ts                       pure pipeline orchestration
+├── data/telemetry/
+│   ├── types.ts                         approved outcome-only event contract
+│   ├── disabledTelemetry.ts             default implementation
+│   └── providerAdapter.ts               added only after privacy approval
+├── shared/
+│   ├── browser/draftStorage.ts          localStorage plus tab-memory fallback
+│   ├── browser/clipboard.ts             dual-MIME copy adapter
+│   └── ui/                              domain-neutral primitives only
+└── view/
+    ├── components/                      editor, preview, HTML, notices, controls
+    └── widgets/ConverterWidget/         interaction state and feature composition
+```
+
+The converter widget coordinates the workflow but does not implement parsing, sanitization, persistence, or clipboard policy. No application-wide provider is introduced.
+
+**C4 Container (L2):**
+
+```mermaid
+C4Container
+    title Markdown-to-HTML — Containers
+
+    Person(visitor, "Visitor", "Uses the public converter without identification")
+
+    Container_Boundary(product, "Markdown-HTML") {
+        Container(web, "Markdown-HTML web frontend", "Next.js 16.3, React 19, TypeScript 6", "Serves the route shell and runs conversion, preview, persistence coordination, and copying in the browser")
+    }
+
+    System_Ext(browser_storage, "Browser profile storage", "Retains only the latest Markdown when available")
+    System_Ext(telemetry, "Privacy-approved telemetry service", "Optionally receives approved outcome-only events")
+
+    Rel(visitor, web, "Edits Markdown, verifies output, copies HTML, and clears retained content", "Browser UI")
+    Rel(web, browser_storage, "Saves, restores, and clears the latest Markdown", "Web Storage API")
+    Rel(web, telemetry, "Sends approved outcome-only events when enabled", "Provider adapter")
+```
 
 ## 6. Runtime view
 
