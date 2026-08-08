@@ -195,7 +195,7 @@ The downstream `sequences` stage expands this seed so every acceptance criterion
 
 ## 7. Deployment view
 
-<!-- Topology, monitoring, and scaling thresholds, or reasoned N/A for S. -->
+<!-- N/A: This S-sized feature reuses the existing single non-root Docker Compose `web` service, standalone Next.js output, port 3000, healthcheck, and bounded container logs. It adds no runtime service, datastore, queue, worker, replica policy, or infrastructure scaling threshold. Browser performance and outcome monitoring belong in §8 and §10 rather than creating deployment topology. -->
 
 ## 8. Crosscutting concepts
 
