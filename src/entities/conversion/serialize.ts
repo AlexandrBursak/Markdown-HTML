@@ -10,5 +10,5 @@ export function serializeFragment(tree: Root): string {
 
 export function serializeOutput(fragment: string, mode: OutputMode): string {
   if (mode === "fragment") return fragment;
-  return `<!doctype html><html><head><meta charset="utf-8"></head><body>${fragment}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Markdown Preview</title></head><body>${fragment}</body></html>`;
 }
