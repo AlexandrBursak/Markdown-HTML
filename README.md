@@ -30,6 +30,8 @@ pnpm build
 
 The browser suite uses the installed Chrome channel and starts the application on `127.0.0.1:4173`.
 
+GitHub Actions runs this same gate for pull requests and pushes to `main`.
+
 ## Docker development
 
 ```sh
