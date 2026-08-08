@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { ConverterWidget } from "@/view/widgets/ConverterWidget/ConverterWidget";
@@ -23,5 +23,24 @@ describe("ConverterWidget", () => {
     expect(
       (screen.getByRole("textbox", { name: "Generated HTML" }) as HTMLTextAreaElement).value,
     ).toContain("<!doctype html>");
+  });
+
+  it("announces grouped sanitization details without input excerpts", () => {
+    render(<ConverterWidget />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Markdown" }), {
+      target: { value: "<script>private()</script>" },
+    });
+    const notice = screen.getByText("1 transformation made").closest("details");
+    expect(notice).not.toBeNull();
+    expect(within(notice!).getByText("Escaped raw HTML: line 1, column 1")).toBeInTheDocument();
+    expect(notice).not.toHaveTextContent("private()");
+  });
+
+  it("announces the oversize boundary without blocking editing", () => {
+    render(<ConverterWidget />);
+    const editor = screen.getByRole("textbox", { name: "Markdown" });
+    fireEvent.change(editor, { target: { value: "a".repeat(100_001) } });
+    expect(editor).toHaveValue("a".repeat(100_001));
+    expect(screen.getByRole("status")).toHaveTextContent("100,000 Unicode code points");
   });
 });
