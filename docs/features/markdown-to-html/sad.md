@@ -36,7 +36,28 @@ target_surfaces: []
 
 ## 2. Constraints
 
-<!-- Fixed technical, organisational, convention, and regulatory/external constraints. -->
+**Technical.**
+
+- Node.js ≥22, pnpm 11.5.2, strict TypeScript 6.x, Next.js App Router 16.3.0, and React 19.x.
+- One browser-focused frontend; no backend, database, migrations, accounts, or cross-device storage.
+- Server Components by default, with a narrow Client Component boundary for the interactive converter and browser APIs.
+
+**Organisational.**
+
+- Feature size S on the quick pipeline route.
+- No authoritative deadline, person-week budget, or team composition is recorded; this SAD does not invent them.
+
+**Conventions.**
+
+- Follow [AGENTS.md](../../../AGENTS.md), [the architecture map](../../architecture-map.md), and the installed RexSoft frontend skill.
+- Dependencies flow `app → view/data/entities/shared`, never upward. Routes stay thin; conversion and sanitization stay outside React components; browser integrations use typed adapters.
+- Use CSS Modules and existing CSS custom properties. Preserve unresolved design-source and visual-token `<!-- FILL -->` markers until an authoritative source exists.
+
+**Regulatory / external.**
+
+- Treat entered Markdown as confidential. Raw Markdown HTML is escaped as text; preview, displayed source, and copied rich HTML share one sanitized representation.
+- Keep Markdown, generated HTML, clipboard content, document URLs, and persistent identifiers out of telemetry.
+- Production telemetry remains disabled until its provider and exact event subset pass privacy review.
 
 ## 3. Context and scope
 
