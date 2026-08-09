@@ -19,6 +19,6 @@
 | T12 | Prove security and performance quality gates | tests | Frontend Lead | 8h | T2, T10 | done |
 | T13 | Close nested sanitization and copied-HTML gaps | domain | Frontend Lead | 4h | T12 | done |
 | T14 | Prove browser clipboard and storage capability fallbacks | tests | Frontend Lead | 4h | T13 | done |
-| T15 | Run full performance evidence against production | tests | Frontend Lead | 3h | T14 | in_progress |
+| T15 | Run full performance evidence against production | tests | Frontend Lead | 3h | T14 | done |
 
 **Total:** 15 tasks, ~10.5 person-days.

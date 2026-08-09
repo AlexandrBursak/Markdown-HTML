@@ -46,16 +46,19 @@ describe("CI workflow", () => {
   });
 
   it("runs the full performance profile on schedule and manual demand", async () => {
-    const [workflow, packageJson, performanceTest] = await Promise.all([
+    const [workflow, packageJson, performanceTest, playwrightConfig] = await Promise.all([
       readFile(".github/workflows/performance.yml", "utf8"),
       readFile("package.json", "utf8"),
       readFile("tests/browser/converter-performance.spec.ts", "utf8"),
+      readFile("playwright.config.ts", "utf8"),
     ]);
 
     expect(workflow).toContain("schedule:");
     expect(workflow).toContain("workflow_dispatch:");
     expect(workflow).toContain("run: pnpm test:performance");
-    expect(packageJson).toContain('"test:performance"');
+    expect(packageJson).toContain('"test:performance": "pnpm build && PERFORMANCE_RUN=full');
+    expect(playwrightConfig).toContain('process.env.PERFORMANCE_RUN === "full"');
+    expect(playwrightConfig).toContain('"pnpm start --hostname 127.0.0.1 --port 4173"');
     expect(performanceTest).toContain('process.env.PERFORMANCE_RUN === "full"');
     expect(performanceTest).toContain("600_000");
     expect(performanceTest).toContain("coldLoadCount = fullRun ? 30 : 1");
