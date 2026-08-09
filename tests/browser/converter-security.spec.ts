@@ -36,6 +36,7 @@ for (const [index, fixture] of unsafeMarkdownFixtures.entries()) {
       return template.content.querySelector(selector) === null;
     }, { html: visibleHtml, selector: unsafeSelector })).toBe(true);
     await page.getByRole("button", { name: "Copy HTML" }).click();
+    await expect(page.getByText("HTML copied")).toBeVisible();
     const copiedHtml = await page.evaluate(
       () => (window as Window & { __clipboard?: Record<string, string> }).__clipboard?.["text/html"],
     );
