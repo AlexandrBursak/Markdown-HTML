@@ -13,8 +13,9 @@ RUN pnpm install --frozen-lockfile
 
 FROM dependencies AS development
 
+RUN apk add --no-cache su-exec \
+    && chown -R node:node /home/node/app/node_modules /pnpm
 COPY --chown=node:node . .
-USER node
 ENTRYPOINT ["/home/node/app/docker/entrypoint.sh"]
 CMD ["pnpm", "dev", "--hostname", "0.0.0.0", "--port", "3000"]
 

@@ -42,6 +42,8 @@ docker compose up --build
 
 The Compose project contains one non-root `web` service with a healthcheck and bounded JSON logs. This repository intentionally has no database or migration tool.
 
+On development startup, the container reconciles the named `node_modules` volume with the frozen lockfile before starting Next.js. When an older volume was created with root ownership, the entrypoint repairs that ownership and still launches the application as the unprivileged `node` user; source files and browser data are not removed.
+
 ## Architecture
 
 Source is organized under `src/` as `app`, `view`, `data`, `entities`, `providers`, and `shared`. See `docs/architecture-map.md` and the accepted ADRs under `docs/adr/` before changing layer boundaries.
