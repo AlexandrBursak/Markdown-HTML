@@ -22,4 +22,57 @@ describe("CI workflow", () => {
       expect(readme).toContain(command);
     }
   });
+
+  it("installs and configures the accepted desktop and mobile browser matrix", async () => {
+    const [workflow, playwrightConfig] = await Promise.all([
+      readFile(".github/workflows/ci.yml", "utf8"),
+      readFile("playwright.config.ts", "utf8"),
+    ]);
+
+    expect(workflow).toContain(
+      "pnpm exec playwright install --with-deps chromium firefox webkit msedge",
+    );
+    for (const project of [
+      "desktop-chrome",
+      "desktop-firefox",
+      "desktop-safari",
+      "desktop-edge",
+      "mobile-chrome",
+      "mobile-safari",
+    ]) {
+      expect(playwrightConfig).toContain(`name: \"${project}\"`);
+    }
+    expect(playwrightConfig).toContain("workers: process.env.CI ? 1 : undefined");
+  });
+
+  it("runs the full performance profile on schedule and manual demand", async () => {
+    const [workflow, packageJson, performanceTest, playwrightConfig] = await Promise.all([
+      readFile(".github/workflows/performance.yml", "utf8"),
+      readFile("package.json", "utf8"),
+      readFile("tests/browser/converter-performance.spec.ts", "utf8"),
+      readFile("playwright.config.ts", "utf8"),
+    ]);
+
+    expect(workflow).toContain("schedule:");
+    expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain("run: pnpm test:performance");
+    expect(packageJson).toContain('"test:performance": "pnpm build && PERFORMANCE_RUN=full');
+    expect(playwrightConfig).toContain('process.env.PERFORMANCE_RUN === "full"');
+    expect(playwrightConfig).toContain('"pnpm start --hostname 127.0.0.1 --port 4173"');
+    expect(performanceTest).toContain('process.env.PERFORMANCE_RUN === "full"');
+    expect(performanceTest).toContain("600_000");
+    expect(performanceTest).toContain("coldLoadCount = fullRun ? 30 : 1");
+  });
+
+  it("isolates performance profiles and hydrates the converter before sampling", async () => {
+    const performanceTest = await readFile(
+      "tests/browser/converter-performance.spec.ts",
+      "utf8",
+    );
+
+    expect(performanceTest).toContain('test.describe.configure({ mode: "serial" })');
+    expect(performanceTest).toContain('testInfo.project.name !== "desktop-chrome"');
+    expect(performanceTest).toContain('await editor.fill("warmup")');
+    expect(performanceTest).toContain('await expect(output).toHaveValue("<p>warmup</p>")');
+  });
 });

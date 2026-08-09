@@ -15,12 +15,18 @@
     "test": "vitest run",
     "test:unit": "vitest run",
     "test:browser": "playwright test",
+    "test:performance": "pnpm build && PERFORMANCE_RUN=full playwright test tests/browser/converter-performance.spec.ts --project=desktop-chrome",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "hast-util-to-html": "latest",
+    "mdast-util-to-hast": "latest",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "remark-gfm": "latest",
+    "remark-parse": "latest",
+    "unified": "latest"
   },
   "devDependencies": {
     "@axe-core/playwright": "latest",
@@ -30,6 +36,7 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/mdast": "latest",
     "eslint": "^9.0.0",
     "eslint-config-next": "latest",
     "jsdom": "latest",

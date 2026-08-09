@@ -28,9 +28,10 @@ pnpm test:browser
 pnpm build
 ```
 
-The browser suite uses the installed Chrome channel and starts the application on `127.0.0.1:4173`.
+The local browser smoke uses the installed Chrome channel and starts the application on `127.0.0.1:4173`. CI additionally runs Firefox, WebKit, Edge, Android Chrome emulation, and iOS Safari emulation.
 
 GitHub Actions runs this same gate for pull requests and pushes to `main`.
+A separate weekly and manually triggered workflow runs the 10-minute conversion profile and 30 cold-load samples with CPU and network throttling.
 
 ## Docker development
 
@@ -40,6 +41,8 @@ docker compose up --build
 ```
 
 The Compose project contains one non-root `web` service with a healthcheck and bounded JSON logs. This repository intentionally has no database or migration tool.
+
+On development startup, the container reconciles the named `node_modules` volume with the frozen lockfile before starting Next.js. When an older volume was created with root ownership, the entrypoint repairs that ownership and still launches the application as the unprivileged `node` user; source files and browser data are not removed.
 
 ## Architecture
 

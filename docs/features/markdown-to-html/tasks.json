@@ -1,0 +1,140 @@
+{
+  "slug": "markdown-to-html",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Establish the typed GFM parsing contract",
+      "layer": "domain",
+      "deps": [],
+      "acs": ["AC-01", "AC-02", "AC-05b"],
+      "dod": "Unit tests prove that completed input is parsed with full GFM semantics, source positions survive normalization, and raw HTML is represented as text rather than executable structure.",
+      "files_hint": ["package.json", "pnpm-lock.yaml", "src/entities/conversion/types.ts", "src/entities/conversion/parse.ts", "tests/unit/conversion/parse.test.ts"]
+    },
+    {
+      "id": "T2",
+      "title": "Implement canonical sanitization and deterministic serializers",
+      "layer": "domain",
+      "deps": ["T1"],
+      "acs": ["AC-02", "AC-03", "AC-05", "AC-05b", "AC-09"],
+      "dod": "Security and serializer unit tests prove the URL and structure policy, content-free positioned diagnostics, preview/source equivalence, and exact fragment and minimal-document output.",
+      "files_hint": ["src/entities/conversion/sanitize.ts", "src/entities/conversion/serialize.ts", "src/entities/conversion/convert.ts", "tests/unit/conversion/sanitize.test.ts", "tests/unit/conversion/serialize.test.ts"]
+    },
+    {
+      "id": "T3",
+      "title": "Add resilient latest-draft browser storage",
+      "layer": "infra",
+      "deps": [],
+      "acs": ["AC-06", "AC-07", "AC-08"],
+      "dod": "Adapter tests prove restore, replacement within the 500 ms autosave contract, profile isolation, tab-memory fallback, and removal of every application-controlled copy.",
+      "files_hint": ["src/shared/browser/draftStorage.ts", "tests/unit/browser/draftStorage.test.ts"]
+    },
+    {
+      "id": "T4",
+      "title": "Add a typed dual-MIME clipboard adapter",
+      "layer": "infra",
+      "deps": [],
+      "acs": ["AC-04", "AC-04b"],
+      "dod": "Adapter tests prove one confirmed write carries identical current HTML as text/plain and text/html and returns typed denial and failure outcomes.",
+      "files_hint": ["src/shared/browser/clipboard.ts", "tests/unit/browser/clipboard.test.ts"]
+    },
+    {
+      "id": "T5",
+      "title": "Define disabled-by-default outcome telemetry",
+      "layer": "infra",
+      "deps": [],
+      "acs": [],
+      "dod": "Contract tests prove the disabled adapter emits nothing and the event type cannot accept Markdown, generated HTML, clipboard content, document URLs, or persistent identifiers.",
+      "files_hint": ["src/data/telemetry/types.ts", "src/data/telemetry/disabledTelemetry.ts", "tests/unit/telemetry/disabledTelemetry.test.ts"]
+    },
+    {
+      "id": "T6",
+      "title": "Coordinate revision-matched conversion state",
+      "layer": "app",
+      "deps": ["T2", "T3", "T4", "T5"],
+      "acs": ["AC-01", "AC-03", "AC-06", "AC-09", "AC-10"],
+      "dod": "State tests prove composition-safe updates, restore conversion, revision and mode freshness gates, Unicode code-point size warnings, and disabled copying for stale results.",
+      "files_hint": ["src/view/widgets/ConverterWidget/useConverterState.ts", "src/view/widgets/ConverterWidget/types.ts", "tests/unit/ConverterWidget/useConverterState.test.ts"]
+    },
+    {
+      "id": "T7",
+      "title": "Build the semantic converter workspace",
+      "layer": "ui",
+      "deps": ["T6"],
+      "acs": ["AC-01", "AC-02", "AC-03", "AC-09"],
+      "dod": "Component tests prove the editor, native output-mode controls, preview, selectable HTML panel, and copy freshness state render synchronized results and remain keyboard operable.",
+      "files_hint": ["src/view/components/MarkdownEditor.tsx", "src/view/components/PreviewPanel.tsx", "src/view/components/HtmlOutputPanel.tsx", "src/view/components/OutputModeControl.tsx", "src/view/widgets/ConverterWidget/ConverterWidget.tsx", "src/view/widgets/ConverterWidget/ConverterWidget.module.css", "tests/unit/ConverterWidget/ConverterWidget.test.tsx"]
+    },
+    {
+      "id": "T8",
+      "title": "Expose sanitization and retention notices",
+      "layer": "ui",
+      "deps": ["T7"],
+      "acs": ["AC-05", "AC-05b", "AC-06", "AC-10"],
+      "dod": "Component tests prove transformation totals and positioned categories expand without excerpts and persistent storage and oversize warnings are announced accessibly.",
+      "files_hint": ["src/view/components/SanitizationNotice.tsx", "src/view/components/StatusNotice.tsx", "src/view/widgets/ConverterWidget/ConverterWidget.tsx", "src/view/widgets/ConverterWidget/ConverterWidget.module.css", "tests/unit/ConverterWidget/ConverterWidget.test.tsx"]
+    },
+    {
+      "id": "T9",
+      "title": "Complete copy and clear interaction recovery",
+      "layer": "ui",
+      "deps": ["T3", "T4", "T8"],
+      "acs": ["AC-04", "AC-04b", "AC-08", "AC-09", "AC-10"],
+      "dod": "Component tests prove confirmed copy feedback, failure focus and manual selection, stale-copy blocking, and Clear removal from input, profile storage, and tab memory.",
+      "files_hint": ["src/view/components/ConverterActions.tsx", "src/view/widgets/ConverterWidget/ConverterWidget.tsx", "src/view/widgets/ConverterWidget/ConverterWidget.module.css", "tests/unit/ConverterWidget/ConverterWidget.test.tsx"]
+    },
+    {
+      "id": "T10",
+      "title": "Compose the server-rendered converter route",
+      "layer": "wiring",
+      "deps": ["T7"],
+      "acs": ["AC-01", "AC-03"],
+      "dod": "Route tests prove the Server Component page supplies metadata, preserves the skip link, and composes only the converter client island while all styles consume resolved global tokens.",
+      "files_hint": ["src/app/page.tsx", "src/app/layout.tsx", "src/app/HomePage.module.css", "src/app/globals.css", "src/view/widgets/ConverterWidget/index.ts", "tests/unit/HomePage.test.tsx"]
+    },
+    {
+      "id": "T11",
+      "title": "Verify the complete browser workflow and accessibility",
+      "layer": "tests",
+      "deps": ["T9", "T10"],
+      "acs": ["AC-01", "AC-02", "AC-03", "AC-04", "AC-04b", "AC-05", "AC-05b", "AC-06", "AC-07", "AC-08", "AC-09", "AC-10"],
+      "dod": "Browser tests pass for edit, restore, mode switch, copy success and failure, Clear, sanitization disclosure, responsive layouts, keyboard navigation, and zero critical or serious accessibility violations.",
+      "files_hint": ["tests/browser/converter-workflow.spec.ts", "tests/browser/converter-accessibility.spec.ts", "tests/browser/fixtures/"]
+    },
+    {
+      "id": "T12",
+      "title": "Prove security and performance quality gates",
+      "layer": "tests",
+      "deps": ["T2", "T10"],
+      "acs": ["AC-02", "AC-03", "AC-04", "AC-05", "AC-05b", "AC-10"],
+      "dod": "Automated browser suites prove unsafe fixtures never execute, copied MIME payloads match visible HTML, conversion p95 meets 100 ms through 100,000 code points, and cold initial usability meets 2 seconds under the specified profile.",
+      "files_hint": ["tests/browser/converter-security.spec.ts", "tests/browser/converter-performance.spec.ts", "tests/browser/fixtures/"]
+    },
+    {
+      "id": "T13",
+      "title": "Close nested sanitization and copied-HTML gaps",
+      "layer": "domain",
+      "deps": ["T12"],
+      "acs": ["AC-05"],
+      "dod": "Unit and browser regressions prove nested unsafe URLs are sanitized recursively and unsafe fixtures remain inert in preview, displayed HTML, and copied rich HTML.",
+      "files_hint": ["src/entities/conversion/sanitize.ts", "tests/unit/conversion/sanitize.test.ts", "tests/browser/converter-security.spec.ts", "tests/browser/fixtures/security.ts"]
+    },
+    {
+      "id": "T14",
+      "title": "Prove browser clipboard and storage capability fallbacks",
+      "layer": "tests",
+      "deps": ["T13"],
+      "acs": ["AC-04", "AC-06"],
+      "dod": "Playwright exercises the browser clipboard integration where supported and proves storage access and write failures retain the draft only for the current tab with visible recovery guidance.",
+      "files_hint": ["tests/browser/converter-security.spec.ts", "tests/browser/converter-workflow.spec.ts"]
+    },
+    {
+      "id": "T15",
+      "title": "Run full performance evidence against production",
+      "layer": "tests",
+      "deps": ["T14"],
+      "acs": ["AC-10"],
+      "dod": "The scheduled full performance profile builds and starts the production Next.js artifact while ordinary browser smoke retains its fast development-server path.",
+      "files_hint": ["package.json", "playwright.config.ts", ".github/workflows/performance.yml", "tests/unit/ciWorkflow.test.ts"]
+    }
+  ]
+}
