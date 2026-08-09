@@ -1,8 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 const fullRun = process.env.PERFORMANCE_RUN === "full";
-const conversionRunMs = fullRun ? 600_000 : 2_500;
+const conversionRunMs = fullRun ? 600_000 : 5_000;
 const coldLoadCount = fullRun ? 30 : 1;
+
+test.describe.configure({ mode: "serial" });
+test.beforeEach(({}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop-chrome",
+    "Performance budgets use the canonical desktop Chrome profile",
+  );
+});
 
 function percentile95(samples: number[]): number {
   return [...samples].sort((a, b) => a - b)[Math.ceil(samples.length * 0.95) - 1] ?? Infinity;
@@ -13,6 +21,8 @@ test("converts documents through 100,000 code points within the p95 budget", asy
   await page.goto("/");
   const editor = page.getByRole("textbox", { name: "Markdown" });
   const output = page.getByRole("textbox", { name: "Generated HTML" });
+  await editor.fill("warmup");
+  await expect(output).toHaveValue("<p>warmup</p>");
   const samples = await editor.evaluate(async (element, { durationMs }) => {
     const textarea = element as HTMLTextAreaElement;
     const generated = document.querySelector<HTMLTextAreaElement>(
@@ -44,7 +54,7 @@ test("converts documents through 100,000 code points within the p95 budget", asy
     return timings;
   }, { durationMs: conversionRunMs });
   await expect(output).not.toHaveValue("");
-  expect(samples.length).toBeGreaterThanOrEqual(fullRun ? 2_300 : 8);
+  expect(samples.length).toBeGreaterThanOrEqual(fullRun ? 2_300 : 20);
   expect(percentile95(samples)).toBeLessThanOrEqual(100);
 });
 

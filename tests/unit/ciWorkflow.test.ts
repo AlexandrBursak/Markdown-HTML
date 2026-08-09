@@ -59,4 +59,16 @@ describe("CI workflow", () => {
     expect(performanceTest).toContain("600_000");
     expect(performanceTest).toContain("coldLoadCount = fullRun ? 30 : 1");
   });
+
+  it("isolates performance profiles and hydrates the converter before sampling", async () => {
+    const performanceTest = await readFile(
+      "tests/browser/converter-performance.spec.ts",
+      "utf8",
+    );
+
+    expect(performanceTest).toContain('test.describe.configure({ mode: "serial" })');
+    expect(performanceTest).toContain('testInfo.project.name !== "desktop-chrome"');
+    expect(performanceTest).toContain('await editor.fill("warmup")');
+    expect(performanceTest).toContain('await expect(output).toHaveValue("<p>warmup</p>")');
+  });
 });
