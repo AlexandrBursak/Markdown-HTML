@@ -104,7 +104,22 @@ test("selects the visible HTML when the browser has no clipboard capability", as
   await page.getByRole("button", { name: "Copy HTML" }).click();
 
   await expect(page.getByText("Copy failed. The HTML is selected for manual copying.")).toBeVisible();
-  await expect(page.getByRole("textbox", { name: "Generated HTML" })).toBeFocused();
+  const output = page.getByRole("textbox", { name: "Generated HTML" });
+  await expect(output).toBeFocused();
+  expect(await output.evaluate((element) => {
+    const textarea = element as HTMLTextAreaElement;
+    return {
+      selected: textarea.value.slice(textarea.selectionStart, textarea.selectionEnd),
+      value: textarea.value,
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+    };
+  })).toEqual({
+    selected: "<p>Unavailable clipboard</p>",
+    value: "<p>Unavailable clipboard</p>",
+    start: 0,
+    end: 28,
+  });
 });
 
 for (const failure of ["access", "write"] as const) {
@@ -136,6 +151,9 @@ for (const failure of ["access", "write"] as const) {
         return null;
       }
     })).toBeNull();
+    await page.getByRole("radio", { name: "Full document" }).check();
+    await expect(editor).toHaveValue(`${failure} failure draft`);
+    await expect(page.getByText(/retained only in the current tab/i)).toBeVisible();
   });
 }
 

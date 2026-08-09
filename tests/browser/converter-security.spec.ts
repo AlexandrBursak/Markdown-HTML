@@ -26,9 +26,15 @@ for (const [index, fixture] of unsafeMarkdownFixtures.entries()) {
     await gotoConverter(page);
     await page.getByRole("textbox", { name: "Markdown" }).fill(fixture);
     expect(await page.evaluate(() => (window as Window & { __executed?: boolean }).__executed)).toBeUndefined();
-    await expect(page.getByRole("region", { name: "Preview" }).locator("script, iframe, img")).toHaveCount(0);
+    const unsafeSelector = 'script, iframe, img, a[href^="javascript:" i], a[href^="data:" i], a[href^="vbscript:" i]';
+    await expect(page.getByRole("region", { name: "Preview" }).locator(unsafeSelector)).toHaveCount(0);
 
     const visibleHtml = await page.getByRole("textbox", { name: "Generated HTML" }).inputValue();
+    expect(await page.evaluate(({ html, selector }) => {
+      const template = document.createElement("template");
+      template.innerHTML = html;
+      return template.content.querySelector(selector) === null;
+    }, { html: visibleHtml, selector: unsafeSelector })).toBe(true);
     await page.getByRole("button", { name: "Copy HTML" }).click();
     const copiedHtml = await page.evaluate(
       () => (window as Window & { __clipboard?: Record<string, string> }).__clipboard?.["text/html"],
@@ -40,7 +46,9 @@ for (const [index, fixture] of unsafeMarkdownFixtures.entries()) {
       document.body.append(frame);
       await new Promise((resolve) => frame.addEventListener("load", resolve, { once: true }));
       const frameWindow = frame.contentWindow as (Window & { __executed?: boolean }) | null;
-      const unsafe = frame.contentDocument?.querySelector("script, iframe, img") !== null;
+      const unsafe = frame.contentDocument?.querySelector(
+        'script, iframe, img, a[href^="javascript:" i], a[href^="data:" i], a[href^="vbscript:" i]',
+      ) !== null;
       const executed = frameWindow?.__executed === true;
       frame.remove();
       return { executed, unsafe };
