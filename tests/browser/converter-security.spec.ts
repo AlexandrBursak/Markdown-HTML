@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { unsafeMarkdownFixtures } from "./fixtures/security";
+import { gotoConverter } from "./helpers/converter";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -21,7 +22,7 @@ test.beforeEach(async ({ page }) => {
 
 for (const [index, fixture] of unsafeMarkdownFixtures.entries()) {
   test(`blocks unsafe fixture ${index + 1}`, async ({ page }) => {
-    await page.goto("/");
+    await gotoConverter(page);
     await page.getByRole("textbox", { name: "Markdown" }).fill(fixture);
     expect(await page.evaluate(() => (window as Window & { __executed?: boolean }).__executed)).toBeUndefined();
     await expect(page.getByRole("region", { name: "Preview" }).locator("script, iframe, img")).toHaveCount(0);
@@ -29,7 +30,7 @@ for (const [index, fixture] of unsafeMarkdownFixtures.entries()) {
 }
 
 test("copies exactly the current visible sanitized HTML in both MIME types", async ({ page }) => {
-  await page.goto("/");
+  await gotoConverter(page);
   await page.getByRole("textbox", { name: "Markdown" }).fill("**safe**");
   const visibleHtml = await page.getByRole("textbox", { name: "Generated HTML" }).inputValue();
   await page.getByRole("button", { name: "Copy HTML" }).click();

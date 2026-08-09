@@ -1,13 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 import { officialGfmConstructFixtures } from "./fixtures/gfm";
+import { gotoConverter, waitForConverter } from "./helpers/converter";
 
 test("converts GFM, switches modes, restores, and clears", async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
   });
-  await page.goto("/");
+  await gotoConverter(page);
   const editor = page.getByRole("textbox", { name: "Markdown" });
   await editor.fill("~~done~~\n\n- [x] task");
   await expect(page.getByRole("region", { name: "Preview" })).toContainText("done");
@@ -16,23 +17,25 @@ test("converts GFM, switches modes, restores, and clears", async ({ page }) => {
   await expect(page.getByRole("textbox", { name: "Generated HTML" })).toHaveValue(/^<!doctype html>/);
   await page.waitForTimeout(550);
   await page.reload();
+  await waitForConverter(page);
   await expect(editor).toHaveValue("~~done~~\n\n- [x] task");
   await page.getByRole("button", { name: "Clear" }).click();
   await expect(editor).toHaveValue("");
   await page.reload();
+  await waitForConverter(page);
   await expect(editor).toHaveValue("");
   expect(consoleErrors.filter((message) => message.includes("hydrated"))).toEqual([]);
 });
 
 test("reports raw HTML without executing it", async ({ page }) => {
-  await page.goto("/");
+  await gotoConverter(page);
   await page.getByRole("textbox", { name: "Markdown" }).fill("<script>window.__unsafe = true</script>");
   await expect(page.getByText("1 transformation made")).toBeVisible();
   expect(await page.evaluate(() => (window as Window & { __unsafe?: boolean }).__unsafe)).toBeUndefined();
 });
 
 test("publishes composed input only when character composition completes", async ({ page }) => {
-  await page.goto("/");
+  await gotoConverter(page);
   const editor = page.getByRole("textbox", { name: "Markdown" });
   const html = page.getByRole("textbox", { name: "Generated HTML" });
 
@@ -75,7 +78,7 @@ test("selects the complete visible HTML when clipboard access is denied", async 
       },
     });
   });
-  await page.goto("/");
+  await gotoConverter(page);
   await page.getByRole("textbox", { name: "Markdown" }).fill("Copy me");
   await page.getByRole("button", { name: "Copy HTML" }).click();
 
@@ -93,7 +96,7 @@ test("selects the complete visible HTML when clipboard access is denied", async 
 });
 
 test("renders supported CommonMark and GFM families in both output surfaces", async ({ page }) => {
-  await page.goto("/");
+  await gotoConverter(page);
   const markdown = [
     "# Heading",
     "",
@@ -129,7 +132,7 @@ test("renders supported CommonMark and GFM families in both output surfaces", as
 });
 
 test("matches every official GFM construct family in preview and generated HTML", async ({ page }) => {
-  await page.goto("/");
+  await gotoConverter(page);
   const editor = page.getByRole("textbox", { name: "Markdown" });
   const html = page.getByRole("textbox", { name: "Generated HTML" });
   const previewBody = page.getByRole("region", { name: "Preview" }).locator(":scope > div");
@@ -149,7 +152,7 @@ test("matches every official GFM construct family in preview and generated HTML"
 });
 
 test("keeps a retained draft isolated to its browser profile", async ({ browser, page }) => {
-  await page.goto("/");
+  await gotoConverter(page);
   await page.getByRole("textbox", { name: "Markdown" }).fill("profile one only");
   await page.waitForTimeout(550);
 
@@ -158,7 +161,7 @@ test("keeps a retained draft isolated to its browser profile", async ({ browser,
     const separatePage = await separateProfile.newPage();
     const requests: string[] = [];
     separatePage.on("request", (request) => requests.push(request.url()));
-    await separatePage.goto("http://127.0.0.1:4173/");
+    await gotoConverter(separatePage, "http://127.0.0.1:4173/");
 
     await expect(separatePage.getByRole("textbox", { name: "Markdown" })).toHaveValue("");
     expect(requests.some((url) => /draft|document/i.test(new URL(url).pathname))).toBe(false);
@@ -170,7 +173,7 @@ test("keeps a retained draft isolated to its browser profile", async ({ browser,
 for (const viewport of [{ width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1280, height: 800 }]) {
   test(`keeps all panels usable at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await page.goto("/");
+    await gotoConverter(page);
     await expect(page.getByRole("textbox", { name: "Markdown" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Preview" })).toBeVisible();
     await expect(page.getByRole("textbox", { name: "Generated HTML" })).toBeVisible();

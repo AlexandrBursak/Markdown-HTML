@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ConverterWidget } from "@/view/widgets/ConverterWidget/ConverterWidget";
@@ -6,6 +6,21 @@ import { ConverterWidget } from "@/view/widgets/ConverterWidget/ConverterWidget"
 afterEach(cleanup);
 
 describe("ConverterWidget", () => {
+  it("publishes readiness only after client restoration completes", async () => {
+    render(<ConverterWidget />);
+
+    expect(screen.getByRole("region", { name: "Markdown converter" })).toHaveAttribute(
+      "data-hydrated",
+      "false",
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("region", { name: "Markdown converter" })).toHaveAttribute(
+        "data-hydrated",
+        "true",
+      );
+    });
+  });
+
   it("synchronizes the semantic editor, preview, and selectable HTML", () => {
     render(<ConverterWidget />);
     const editor = screen.getByRole("textbox", { name: "Markdown" });

@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { gotoConverter, waitForConverter } from "./helpers/converter";
+
 const fullRun = process.env.PERFORMANCE_RUN === "full";
 const conversionRunMs = fullRun ? 600_000 : 5_000;
 const coldLoadCount = fullRun ? 30 : 1;
@@ -18,7 +20,7 @@ function percentile95(samples: number[]): number {
 
 test("converts documents through 100,000 code points within the p95 budget", async ({ page }) => {
   test.setTimeout(fullRun ? 660_000 : 30_000);
-  await page.goto("/");
+  await gotoConverter(page);
   const editor = page.getByRole("textbox", { name: "Markdown" });
   const output = page.getByRole("textbox", { name: "Generated HTML" });
   await editor.fill("warmup");
@@ -76,6 +78,7 @@ test("makes cold converter loads usable within two seconds", async ({ page, brow
   for (let index = 0; index < coldLoadCount; index += 1) {
     const started = performance.now();
     await page.goto(`/?cold=${index}`, { waitUntil: "domcontentloaded" });
+    await waitForConverter(page);
     await expect(page.getByRole("textbox", { name: "Markdown" })).toBeEditable();
     await expect(page.getByRole("region", { name: "Preview" })).toBeVisible();
     await expect(page.getByRole("textbox", { name: "Generated HTML" })).toBeVisible();

@@ -20,6 +20,7 @@ export function ConverterWidget() {
   const [clipboard] = useState(() => createHtmlClipboard());
   const [actionMessage, setActionMessage] = useState("");
   const [tabOnly, setTabOnly] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const outputRef = useRef<HTMLTextAreaElement>(null);
   const converter = useConverterState();
 
@@ -28,6 +29,7 @@ export function ConverterWidget() {
       const restored = drafts.restore();
       if (restored.markdown) converter.updateMarkdown(restored.markdown, false);
       setTabOnly(restored.persistence === "tab");
+      setIsHydrated(true);
     });
   // Restoration must happen after the server-compatible first client render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,7 +59,7 @@ export function ConverterWidget() {
   }
 
   return (
-    <section className={styles.workspace} aria-label="Markdown converter">
+    <section className={styles.workspace} aria-label="Markdown converter" data-hydrated={isHydrated}>
       <div className={styles.toolbar}>
         <OutputModeControl mode={converter.mode} onChange={converter.setMode} />
         <ConverterActions canCopy={converter.canCopy} onCopy={copyHtml} onClear={clearDraft} message={actionMessage} />

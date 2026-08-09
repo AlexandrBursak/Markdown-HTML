@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+import { gotoConverter } from "./helpers/converter";
+
 test("has no critical or serious violations across the complete keyboard workflow", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", {
@@ -12,7 +14,7 @@ test("has no critical or serious violations across the complete keyboard workflo
       },
     });
   });
-  await page.goto("/");
+  await gotoConverter(page);
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to converter" })).toBeFocused();
   await page.keyboard.press("Enter");
