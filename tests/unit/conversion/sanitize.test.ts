@@ -26,4 +26,16 @@ describe("conversion security policy", () => {
       expect(result.diagnostics[0]?.category).toBe("removed-url");
     },
   );
+
+  it("sanitizes descendants when replacing a disallowed link", () => {
+    const result = convertMarkdown(
+      "[![nested image](data:text/html,bad)](javascript:bad)",
+      1,
+      "fragment",
+    );
+
+    expect(result.html).toBe("<p>nested image</p>");
+    expect(result.diagnostics).toHaveLength(2);
+    expect(result.diagnostics.every(({ category }) => category === "removed-url")).toBe(true);
+  });
 });

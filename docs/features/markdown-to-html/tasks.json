@@ -108,6 +108,33 @@
       "acs": ["AC-02", "AC-03", "AC-04", "AC-05", "AC-05b", "AC-10"],
       "dod": "Automated browser suites prove unsafe fixtures never execute, copied MIME payloads match visible HTML, conversion p95 meets 100 ms through 100,000 code points, and cold initial usability meets 2 seconds under the specified profile.",
       "files_hint": ["tests/browser/converter-security.spec.ts", "tests/browser/converter-performance.spec.ts", "tests/browser/fixtures/"]
+    },
+    {
+      "id": "T13",
+      "title": "Close nested sanitization and copied-HTML gaps",
+      "layer": "domain",
+      "deps": ["T12"],
+      "acs": ["AC-05"],
+      "dod": "Unit and browser regressions prove nested unsafe URLs are sanitized recursively and unsafe fixtures remain inert in preview, displayed HTML, and copied rich HTML.",
+      "files_hint": ["src/entities/conversion/sanitize.ts", "tests/unit/conversion/sanitize.test.ts", "tests/browser/converter-security.spec.ts", "tests/browser/fixtures/security.ts"]
+    },
+    {
+      "id": "T14",
+      "title": "Prove browser clipboard and storage capability fallbacks",
+      "layer": "tests",
+      "deps": ["T13"],
+      "acs": ["AC-04", "AC-06"],
+      "dod": "Playwright exercises the browser clipboard integration where supported and proves storage access and write failures retain the draft only for the current tab with visible recovery guidance.",
+      "files_hint": ["tests/browser/converter-security.spec.ts", "tests/browser/converter-workflow.spec.ts"]
+    },
+    {
+      "id": "T15",
+      "title": "Run full performance evidence against production",
+      "layer": "tests",
+      "deps": ["T14"],
+      "acs": ["AC-10"],
+      "dod": "The scheduled full performance profile builds and starts the production Next.js artifact while ordinary browser smoke retains its fast development-server path.",
+      "files_hint": ["package.json", "playwright.config.ts", ".github/workflows/performance.yml", "tests/unit/ciWorkflow.test.ts"]
     }
   ]
 }

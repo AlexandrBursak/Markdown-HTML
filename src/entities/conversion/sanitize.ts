@@ -32,6 +32,7 @@ function sanitizeChildren(
   parent.children = parent.children.flatMap((child) => {
     if (child.type === "link" && !isAllowedUrl(child.url, false)) {
       reportRemovedUrl(child, diagnostics);
+      sanitizeChildren(child, diagnostics);
       return child.children;
     }
     if (child.type === "image" && !isAllowedUrl(child.url, true)) {
