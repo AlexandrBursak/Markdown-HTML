@@ -42,6 +42,7 @@ describe("CI workflow", () => {
     ]) {
       expect(playwrightConfig).toContain(`name: \"${project}\"`);
     }
+    expect(playwrightConfig).toContain("workers: process.env.CI ? 1 : undefined");
   });
 
   it("runs the full performance profile on schedule and manual demand", async () => {
