@@ -42,12 +42,13 @@ This PR ships the browser-only Markdown-to-HTML converter defined by the [featur
 
 - Typecheck: `pnpm typecheck` — PASS
 - Lint: `pnpm lint` — PASS
-- Unit/component: `pnpm test` — PASS (13 files, 64 tests)
+- Unit/component: `pnpm test` — PASS (13 files, 65 tests)
 - Browser/accessibility: `pnpm test:browser` — PASS (20 Chromium tests)
 - Production build: `pnpm build` — PASS (static `/` route generated)
 - Ran the feature: the Playwright gate started the real Next.js app and observed live/GFM conversion (AC-01/AC-02), raw-HTML escaping and execution blocking (AC-05/AC-05b), exact current literal/rich clipboard payloads (AC-04), mode switching plus draft restore/clear (AC-06/AC-08/AC-09), browser-profile isolation (AC-07), keyboard/accessibility behavior, and the conversion latency boundary (AC-10).
 - CI regression: the performance profiles now run serially on the canonical desktop Chrome project after an untimed hydration warm-up; the repaired 5-second smoke profile passed locally without a hydration warning.
 - CI matrix: GitHub runs the six desktop/mobile projects with one worker to prevent shared-runner contention; all 20 Chrome tests pass locally under the same `CI=1` configuration.
+- Hydration: the converter publishes readiness only after browser restoration, and every Playwright navigation waits for that boundary before interacting or measuring.
 - Docker: `docker compose up --build -d` repaired an existing stale/root-owned dependency volume, reached `healthy`, served HTTP 200, and ran Next.js as the unprivileged `node` user; a compatible restart reconciled dependencies in 268 ms.
 
 ## Operational notes
