@@ -6,6 +6,15 @@ import { ConverterWidget } from "@/view/widgets/ConverterWidget/ConverterWidget"
 afterEach(cleanup);
 
 describe("ConverterWidget", () => {
+  it("prevents Firefox from restoring stale copy-button state before hydration", () => {
+    render(<ConverterWidget />);
+
+    expect(screen.getByRole("button", { name: "Copy HTML" })).toHaveAttribute(
+      "autocomplete",
+      "off",
+    );
+  });
+
   it("publishes readiness only after client restoration completes", async () => {
     render(<ConverterWidget />);
 
