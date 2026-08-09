@@ -95,6 +95,50 @@ test("selects the complete visible HTML when clipboard access is denied", async 
   })).toEqual({ start: 0, end: 14, length: 14 });
 });
 
+test("selects the visible HTML when the browser has no clipboard capability", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
+  });
+  await gotoConverter(page);
+  await page.getByRole("textbox", { name: "Markdown" }).fill("Unavailable clipboard");
+  await page.getByRole("button", { name: "Copy HTML" }).click();
+
+  await expect(page.getByText("Copy failed. The HTML is selected for manual copying.")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Generated HTML" })).toBeFocused();
+});
+
+for (const failure of ["access", "write"] as const) {
+  test(`retains the current tab and warns when profile storage ${failure} fails`, async ({ page }) => {
+    await page.addInitScript((failureMode) => {
+      if (failureMode === "access") {
+        Object.defineProperty(window, "localStorage", {
+          configurable: true,
+          get: () => { throw new DOMException("denied", "SecurityError"); },
+        });
+        return;
+      }
+      const originalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function setItem(key, value) {
+        if (this === window.localStorage) throw new DOMException("quota", "QuotaExceededError");
+        return originalSetItem.call(this, key, value);
+      };
+    }, failure);
+    await gotoConverter(page);
+    const editor = page.getByRole("textbox", { name: "Markdown" });
+    await editor.fill(`${failure} failure draft`);
+
+    await expect(page.getByText(/retained only in the current tab/i)).toBeVisible();
+    await expect(editor).toHaveValue(`${failure} failure draft`);
+    expect(await page.evaluate(() => {
+      try {
+        return window.localStorage.getItem("markdown-html:latest-draft");
+      } catch {
+        return null;
+      }
+    })).toBeNull();
+  });
+}
+
 test("renders supported CommonMark and GFM families in both output surfaces", async ({ page }) => {
   await gotoConverter(page);
   const markdown = [
