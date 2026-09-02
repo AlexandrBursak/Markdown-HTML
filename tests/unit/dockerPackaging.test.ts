@@ -7,8 +7,9 @@ import { describe, expect, it } from "vitest";
 
 describe("Docker packaging", () => {
   it("defines one healthy, bounded web service and a non-root runtime", async () => {
-    const [compose, dockerfile, entrypoint] = await Promise.all([
+    const [compose, productionCompose, dockerfile, entrypoint] = await Promise.all([
       readFile("compose.yml", "utf8"),
+      readFile("compose.production.yml", "utf8"),
       readFile("docker/Dockerfile", "utf8"),
       readFile("docker/entrypoint.sh", "utf8"),
     ]);
@@ -20,6 +21,10 @@ describe("Docker packaging", () => {
     expect(compose).toContain("start_period: 90s");
     expect(compose).toContain("max-size:");
     expect(compose).toContain("restart: unless-stopped");
+    expect(productionCompose).toContain("target: runner");
+    expect(productionCompose).toContain("NODE_ENV: production");
+    expect(productionCompose).not.toContain("pnpm dev");
+    expect(productionCompose).not.toContain("volumes:");
     expect(dockerfile).toContain("USER nextjs");
     expect(dockerfile).toContain("FROM node:22-alpine AS runner");
     expect(dockerfile).toContain("RUN apk add --no-cache su-exec");
