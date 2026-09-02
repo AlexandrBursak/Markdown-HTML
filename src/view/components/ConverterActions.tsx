@@ -1,3 +1,5 @@
+import { Button } from "@/shared/ui/button";
+
 interface ConverterActionsProps {
   canCopy: boolean;
   onCopy(): void;
@@ -8,8 +10,8 @@ interface ConverterActionsProps {
 export function ConverterActions({ canCopy, onCopy, onClear, message }: ConverterActionsProps) {
   return (
     <div>
-      <button {...{ autoComplete: "off" }} type="button" disabled={!canCopy} onClick={onCopy}>Copy HTML</button>
-      <button type="button" onClick={onClear}>Clear</button>
+      <Button {...{ autoComplete: "off" }} type="button" disabled={!canCopy} onClick={onCopy}>Copy HTML</Button>
+      <Button type="button" variant="outline" onClick={onClear}>Clear</Button>
       <span aria-live="polite">{message}</span>
     </div>
   );

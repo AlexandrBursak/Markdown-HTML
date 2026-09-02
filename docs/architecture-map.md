@@ -68,9 +68,9 @@ C4Container
 
 ## Frontend / UI foundation
 
-- **Component library / design system:** in-repo primitives under `src/shared/ui/`; no third-party kit is selected by survey.
-- **Design tokens:** CSS custom properties in `src/app/globals.css`; concrete colors, spacing, and typography remain `UNKNOWN` until a design source is approved.
-- **Styling approach:** CSS Modules with camelCase class names; responsive breakpoints at `≤768px` and `≤1024px` (`/Users/obursak/Develop/rexsoft/basic-skills/.agents/skills/rexsoft-frontend/references/onboarding.md`).
+- **Component library / design system:** shadcn/ui base-nova components live in `src/shared/ui/`; application code imports them through the `@/shared/ui` alias (`components.json`).
+- **Design tokens:** shadcn/ui neutral CSS custom properties are defined in `src/app/globals.css`; product-specific overrides remain unresolved until a design source is approved.
+- **Styling approach:** Tailwind CSS v4 for shadcn/ui components, with CSS Modules retained for product-specific styles; responsive breakpoints at `≤768px` and `≤1024px` (`/Users/obursak/Develop/rexsoft/basic-skills/.agents/skills/rexsoft-frontend/references/onboarding.md`).
 - **Shared primitives:** scaffold establishes only primitives proven necessary by the converter; it does not invent a general component library.
 - **State / data-fetching:** local React state plus typed browser adapters; no server-cache library without a concrete integration.
 - **Closest UI precedent:** none in this greenfield repository; design must establish the first precedent from an explicit design source.

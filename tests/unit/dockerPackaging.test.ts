@@ -19,6 +19,7 @@ describe("Docker packaging", () => {
     expect(compose).toContain("healthcheck:");
     expect(compose).toContain("start_period: 90s");
     expect(compose).toContain("max-size:");
+    expect(compose).toContain("restart: unless-stopped");
     expect(dockerfile).toContain("USER nextjs");
     expect(dockerfile).toContain("FROM node:22-alpine AS runner");
     expect(dockerfile).toContain("RUN apk add --no-cache su-exec");
