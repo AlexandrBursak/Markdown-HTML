@@ -43,6 +43,22 @@
   padding-inline-start: 1.5rem;
 }
 
+.content ul {
+  list-style: disc;
+}
+
+.content ol {
+  list-style: decimal;
+}
+
+.content ul ul {
+  list-style-type: circle;
+}
+
+.content ol ol {
+  list-style-type: lower-alpha;
+}
+
 .content li + li {
   margin-block-start: 0.25rem;
 }
