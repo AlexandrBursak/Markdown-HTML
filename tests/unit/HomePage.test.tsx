@@ -12,6 +12,9 @@ describe("HomePage", () => {
       screen.getByRole("heading", { name: "Markdown to HTML" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Skip to converter" })).toHaveAttribute("href", "#converter");
+    expect(screen.getByRole("navigation", { name: "RexSoft services" })).toHaveTextContent("Password Generator");
+    expect(screen.getByRole("link", { name: "Password Generator" })).toHaveAttribute("href", "https://passgen.rexsoftproduction.com/");
+    expect(screen.getByRole("link", { name: "Markdown to HTML" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("main")).toHaveAttribute("id", "converter");
     expect(screen.getByRole("region", { name: "Markdown converter" })).toBeInTheDocument();
   });

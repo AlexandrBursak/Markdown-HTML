@@ -7,9 +7,36 @@
 }
 
 .header,
-.main {
+.main,
+.serviceNav {
   width: min(100%, 90rem);
   margin-inline: auto;
+}
+
+.serviceNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-block: 0.5rem;
+}
+
+.serviceNav a {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 0.75);
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.serviceNav a:hover {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.serviceNav a[aria-current="page"] {
+  border-color: var(--ring);
+  color: var(--primary-foreground);
+  background: var(--primary);
 }
 
 .header {
