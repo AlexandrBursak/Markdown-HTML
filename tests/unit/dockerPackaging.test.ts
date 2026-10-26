@@ -33,6 +33,20 @@ describe("Docker packaging", () => {
     expect(entrypoint).toContain('exec su-exec node "$@"');
   });
 
+  it("builds production within a 1 GB, single-CPU server", async () => {
+    const [dockerfile, nextConfig, packageJson] = await Promise.all([
+      readFile("docker/Dockerfile", "utf8"),
+      readFile("next.config.ts", "utf8"),
+      readFile("package.json", "utf8"),
+    ]);
+
+    // Turbopack's native memory is not bounded by the Node heap cap and gets OOM-killed.
+    expect(JSON.parse(packageJson).scripts.build).toBe("next build --webpack");
+    expect(dockerfile).toMatch(/NODE_OPTIONS=--max-old-space-size=\d+ CI=true pnpm build/);
+    expect(nextConfig).toContain("cpus: 1");
+    expect(nextConfig).toContain("webpackMemoryOptimizations: true");
+  });
+
   it("reconciles the dependency volume in development and skips installs in production", async () => {
     const fixture = await mkdtemp(join(tmpdir(), "markdown-html-entrypoint-"));
     const binDirectory = join(fixture, "bin");

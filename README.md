@@ -44,6 +44,16 @@ The Compose project contains one non-root `web` service with a healthcheck and b
 
 On development startup, the container reconciles the named `node_modules` volume with the frozen lockfile before starting Next.js. When an older volume was created with root ownership, the entrypoint repairs that ownership and still launches the application as the unprivileged `node` user; source files and browser data are not removed.
 
+## Production deploy
+
+```sh
+docker compose -f compose.production.yml up -d --build
+```
+
+Always pass `-f compose.production.yml` on servers. Plain `docker compose up` starts `next dev`, which only serves its scripts to `localhost`, so behind a proxy the page never hydrates and the converter does nothing.
+
+The production build uses webpack with a single worker and a capped Node heap so it fits a 1 GB, single-CPU host without swap; Turbopack builds get OOM-killed there.
+
 ## Architecture
 
 Source is organized under `src/` as `app`, `view`, `data`, `entities`, `providers`, and `shared`. See `docs/architecture-map.md` and the accepted ADRs under `docs/adr/` before changing layer boundaries.

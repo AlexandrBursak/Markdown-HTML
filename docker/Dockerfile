@@ -22,7 +22,7 @@ CMD ["pnpm", "dev", "--hostname", "0.0.0.0", "--port", "3000"]
 FROM dependencies AS builder
 
 COPY . .
-RUN pnpm build
+RUN NODE_OPTIONS=--max-old-space-size=384 CI=true pnpm build
 
 FROM node:22-alpine AS runner
 
