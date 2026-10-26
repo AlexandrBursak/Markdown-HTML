@@ -1,19 +1,25 @@
 import styles from "./HomePage.module.css";
 
+import { ThemeControl } from "@/view/components/ThemeControl";
 import { ConverterWidget } from "@/view/widgets/ConverterWidget";
 
 export default function HomePage() {
   return (
     <div className={styles.page}>
       <a className={styles.skipLink} href="#converter">Skip to converter</a>
-      <nav className={styles.serviceNav} aria-label="RexSoft services">
-        <a href="https://passgen.rexsoftproduction.com/">Password Generator</a>
-        <a href="https://markdown-convertor.rexsoftproduction.com/" aria-current="page">Markdown to HTML</a>
-        <a href="https://snap-link.rexsoftproduction.com/">Snap Link</a>
-      </nav>
-      <header className={styles.header}>
-        <h1>Markdown to HTML</h1>
-        <p>Write Markdown, verify the safe preview, and copy the exact HTML.</p>
+      <header>
+        <div className={styles.topBar}>
+          <nav className={styles.serviceNav} aria-label="RexSoft services">
+            <a href="https://passgen.rexsoftproduction.com/">Password Generator</a>
+            <a href="https://markdown-convertor.rexsoftproduction.com/" aria-current="page">Markdown to HTML</a>
+            <a href="https://snap-link.rexsoftproduction.com/">Snap Link</a>
+          </nav>
+          <ThemeControl />
+        </div>
+        <div className={styles.header}>
+          <h1>Markdown to HTML</h1>
+          <p>Write Markdown, verify the safe preview, and copy the exact HTML.</p>
+        </div>
       </header>
       <main id="converter" className={styles.main}>
         <ConverterWidget />

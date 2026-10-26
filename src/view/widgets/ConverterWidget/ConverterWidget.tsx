@@ -68,8 +68,8 @@ export function ConverterWidget() {
       <SanitizationNotice diagnostics={converter.result.diagnostics} />
       <div className={styles.grid}>
         <MarkdownEditor value={converter.markdown} onChange={converter.updateMarkdown} />
-        <PreviewPanel html={converter.result.fragmentHtml} />
         <HtmlOutputPanel ref={outputRef} html={converter.result.html} />
+        <PreviewPanel html={converter.result.fragmentHtml} />
       </div>
     </section>
   );
