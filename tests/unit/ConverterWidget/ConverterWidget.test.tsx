@@ -6,6 +6,16 @@ import { ConverterWidget } from "@/view/widgets/ConverterWidget/ConverterWidget"
 afterEach(cleanup);
 
 describe("ConverterWidget", () => {
+  it("puts Markdown and Generated HTML first and the full-width preview last", () => {
+    render(<ConverterWidget />);
+
+    const markdown = screen.getByRole("textbox", { name: "Markdown" });
+    const html = screen.getByRole("textbox", { name: "Generated HTML" });
+    const preview = screen.getByRole("region", { name: "Preview" });
+    expect(markdown.compareDocumentPosition(html) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(html.compareDocumentPosition(preview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("prevents Firefox from restoring stale copy-button state before hydration", () => {
     render(<ConverterWidget />);
 

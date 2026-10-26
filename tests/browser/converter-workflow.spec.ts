@@ -197,7 +197,7 @@ test("matches every official GFM construct family in preview and generated HTML"
   await gotoConverter(page);
   const editor = page.getByRole("textbox", { name: "Markdown" });
   const html = page.getByRole("textbox", { name: "Generated HTML" });
-  const previewBody = page.getByRole("region", { name: "Preview" }).locator(":scope > div");
+  const previewBody = page.getByTestId("preview-frame").locator(":scope > div");
 
   for (const fixture of officialGfmConstructFixtures) {
     await test.step(fixture.section, async () => {
