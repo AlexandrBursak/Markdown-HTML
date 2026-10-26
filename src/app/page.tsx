@@ -9,6 +9,7 @@ export default function HomePage() {
       <nav className={styles.serviceNav} aria-label="RexSoft services">
         <a href="https://passgen.rexsoftproduction.com/">Password Generator</a>
         <a href="https://markdown-convertor.rexsoftproduction.com/" aria-current="page">Markdown to HTML</a>
+        <a href="https://snap-link.rexsoftproduction.com/">Snap Link</a>
       </nav>
       <header className={styles.header}>
         <h1>Markdown to HTML</h1>
