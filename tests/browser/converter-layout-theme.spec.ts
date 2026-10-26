@@ -17,15 +17,30 @@ test("shows Markdown and HTML side by side with a full-width preview below", asy
   expect(preview.width).toBeGreaterThan(workspace.width * 0.9);
 });
 
-test("narrows the preview with presets and by dragging its corner", async ({ page }) => {
+test("narrows the preview with width presets", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await gotoConverter(page);
   const frame = page.getByTestId("preview-frame");
+  const fullWidth = (await frame.boundingBox())!.width;
 
   await page.getByRole("button", { name: "Mobile" }).click();
   expect((await frame.boundingBox())!.width).toBeCloseTo(375, 0);
 
+  await page.getByRole("button", { name: "Tablet" }).click();
+  expect((await frame.boundingBox())!.width).toBeCloseTo(768, 0);
+
   await page.getByRole("button", { name: "Full" }).click();
+  expect((await frame.boundingBox())!.width).toBeCloseTo(fullWidth, 0);
+});
+
+test("narrows the preview by dragging its corner", async ({ page, browserName }) => {
+  // Linux WebKit in CI ignores synthetic drags on the native resizer (macOS WebKit
+  // passes), and iOS Safari has no CSS resize at all; presets cover both.
+  test.skip(browserName === "webkit", "native resize handle is not drivable in WebKit automation");
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await gotoConverter(page);
+  const frame = page.getByTestId("preview-frame");
+
   await frame.scrollIntoViewIfNeeded();
   const box = (await frame.boundingBox())!;
   await page.mouse.move(box.x + box.width - 3, box.y + box.height - 3);
