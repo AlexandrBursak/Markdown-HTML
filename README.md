@@ -28,7 +28,7 @@ pnpm test:browser
 pnpm build
 ```
 
-The local browser smoke uses the installed Chrome channel and starts the application on `127.0.0.1:4173`. CI additionally runs Firefox, WebKit, Edge, Android Chrome emulation, and iOS Safari emulation.
+The browser smoke uses the installed Chrome channel and starts the application on `127.0.0.1:4173`, locally and in CI. Run `PLAYWRIGHT_MATRIX=full pnpm test:browser` to add Firefox, WebKit, Edge, Android Chrome emulation, and iOS Safari emulation (install them first with `pnpm exec playwright install firefox webkit msedge`).
 
 GitHub Actions runs this same gate for pull requests and pushes to `main`.
 A separate weekly and manually triggered workflow runs the 10-minute conversion profile and 30 cold-load samples with CPU and network throttling.
