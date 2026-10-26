@@ -27,7 +27,8 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:4173",
     trace: "on-first-retry",
   },
-  projects: process.env.CI ? browserMatrix : [desktopChrome],
+  // Full matrix on demand: PLAYWRIGHT_MATRIX=full pnpm test:browser
+  projects: process.env.PLAYWRIGHT_MATRIX === "full" ? browserMatrix : [desktopChrome],
   webServer: {
     command: fullPerformanceRun
       ? "pnpm start --hostname 127.0.0.1 --port 4173"
