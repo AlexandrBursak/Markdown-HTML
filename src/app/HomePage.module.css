@@ -1,56 +1,33 @@
 .page {
   min-height: 100dvh;
-  padding: 1rem;
   background: var(--color-canvas);
   color: var(--color-text);
   font-family: var(--font-body);
 }
 
-.header,
-.main,
-.topBar {
-  width: min(100%, 90rem);
+.main {
+  width: min(100% - 2rem, 75rem);
   margin-inline: auto;
+  padding-block-end: 2rem;
 }
 
-.topBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.serviceNav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding-block: 0.5rem;
-}
-
-.serviceNav a {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: calc(var(--radius) * 0.75);
-  color: var(--muted-foreground);
-  text-decoration: none;
-}
-
-.serviceNav a:hover {
-  color: var(--foreground);
-  background: var(--muted);
-}
-
-.serviceNav a[aria-current="page"] {
-  border-color: var(--ring);
-  color: var(--primary-foreground);
-  background: var(--primary);
-}
-
-.header {
-  margin-block-end: 2rem;
-  padding-block: 2rem;
+.intro {
+  margin-block-end: 1.5rem;
+  padding-block: 2rem 1.5rem;
   border-block-end: 1px solid var(--border);
+}
+
+.intro h1 {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.intro p {
+  margin: 0.5rem 0 0;
+  color: var(--muted-foreground);
 }
 
 .skipLink {

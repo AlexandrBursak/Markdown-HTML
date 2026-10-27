@@ -9,7 +9,7 @@ import {
   type ThemePreference,
 } from "@/shared/browser/themePreference";
 
-import styles from "./OutputModeControl.module.css";
+import styles from "./ThemeControl.module.css";
 
 const OPTIONS: { value: ThemePreference; label: string }[] = [
   { value: "system", label: "System" },

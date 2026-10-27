@@ -17,6 +17,20 @@ test("shows Markdown and HTML side by side with a full-width preview below", asy
   expect(preview.width).toBeGreaterThan(workspace.width * 0.9);
 });
 
+test("aligns header and content in one column of at most 1200px", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await gotoConverter(page);
+
+  const nav = (await page.getByRole("navigation", { name: "RexSoft services" }).boundingBox())!;
+  const theme = (await page.getByRole("group", { name: "Theme" }).boundingBox())!;
+  const workspace = (await page.getByRole("region", { name: "Markdown converter" }).boundingBox())!;
+
+  expect(workspace.width).toBeLessThanOrEqual(1200);
+  expect(workspace.width).toBeGreaterThan(1100);
+  expect(Math.abs(nav.x - workspace.x)).toBeLessThan(2);
+  expect(Math.abs(theme.x + theme.width - (workspace.x + workspace.width))).toBeLessThan(2);
+});
+
 test("narrows the preview with width presets", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await gotoConverter(page);
