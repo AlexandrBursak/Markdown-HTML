@@ -1,0 +1,11 @@
+.bar {
+  border-block-start: 1px solid var(--border);
+}
+
+.inner {
+  width: min(100% - 2rem, 75rem);
+  margin: 0 auto;
+  padding-block: 1rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}

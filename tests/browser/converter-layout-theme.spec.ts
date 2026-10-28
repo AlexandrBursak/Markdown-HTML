@@ -31,6 +31,16 @@ test("aligns header and content in one column of at most 1200px", async ({ page 
   expect(Math.abs(theme.x + theme.width - (workspace.x + workspace.width))).toBeLessThan(2);
 });
 
+test("keeps the footer at the bottom of the page", async ({ page }) => {
+  await gotoConverter(page);
+  const footer = page.getByRole("contentinfo");
+  await expect(footer).toContainText("RexSoft");
+
+  const bottom = await footer.evaluate((el) => el.getBoundingClientRect().bottom + window.scrollY);
+  const pageHeight = await page.evaluate(() => Math.max(window.innerHeight, document.documentElement.scrollHeight));
+  expect(Math.abs(bottom - pageHeight)).toBeLessThan(2);
+});
+
 test("narrows the preview with width presets", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await gotoConverter(page);

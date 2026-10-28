@@ -1,4 +1,6 @@
 .page {
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
   background: var(--color-canvas);
   color: var(--color-text);
@@ -6,6 +8,7 @@
 }
 
 .main {
+  flex: 1;
   width: min(100% - 2rem, 75rem);
   margin-inline: auto;
   padding-block-end: 2rem;
