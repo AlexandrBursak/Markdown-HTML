@@ -1,10 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 
 import HomePage from "@/app/page";
 import { metadata } from "@/app/layout";
 
 describe("HomePage", () => {
+  afterEach(cleanup);
+
   it("renders a thin public route around the converter island", () => {
     render(<HomePage />);
 
@@ -18,7 +20,22 @@ describe("HomePage", () => {
     expect(screen.getByRole("link", { name: "Snap Link" })).toHaveAttribute("href", "https://snap-link.rexsoftproduction.com/");
     expect(screen.getByRole("group", { name: "Theme" })).toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveAttribute("id", "converter");
+    expect(within(screen.getByRole("main")).getByRole("heading", { level: 1 })).toHaveTextContent("Markdown to HTML");
     expect(screen.getByRole("region", { name: "Markdown converter" })).toBeInTheDocument();
+  });
+
+  it("shares one service header layout with the other RexSoft services", () => {
+    render(<HomePage />);
+    const nav = screen.getByRole("navigation", { name: "RexSoft services" });
+    const banner = nav.closest("header")!;
+
+    expect(within(nav).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Password Generator",
+      "Markdown to HTML",
+      "Snap Link",
+    ]);
+    expect(within(banner).getByRole("group", { name: "Theme" })).toBeInTheDocument();
+    expect(within(banner).queryByRole("heading")).not.toBeInTheDocument();
   });
 
   it("provides stable server metadata", () => {
