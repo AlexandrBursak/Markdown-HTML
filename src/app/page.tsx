@@ -1,5 +1,6 @@
 import styles from "./HomePage.module.css";
 
+import { ServiceFooter } from "@/view/components/ServiceFooter";
 import { ServiceHeader } from "@/view/components/ServiceHeader";
 import { ConverterWidget } from "@/view/widgets/ConverterWidget";
 
@@ -15,6 +16,7 @@ export default function HomePage() {
         </div>
         <ConverterWidget />
       </main>
+      <ServiceFooter />
     </div>
   );
 }

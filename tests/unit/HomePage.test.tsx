@@ -38,6 +38,12 @@ describe("HomePage", () => {
     expect(within(banner).queryByRole("heading")).not.toBeInTheDocument();
   });
 
+  it("ends with the shared RexSoft footer", () => {
+    render(<HomePage />);
+
+    expect(screen.getByRole("contentinfo")).toHaveTextContent(`© ${new Date().getFullYear()} RexSoft`);
+  });
+
   it("provides stable server metadata", () => {
     expect(metadata).toMatchObject({
       title: "Markdown to HTML",
